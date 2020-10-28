@@ -1,0 +1,36 @@
+menu "Wifi Configuration"
+
+    config WIFI_SSID
+        string "WiFi SSID"
+        default "myssid"
+        help
+            SSID (network name) for the example to connect to.
+
+    config WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            WiFi password (WPA or WPA2) for the example to use.
+            Can be left blank if the network has no security set.
+endmenu
+
+# menu "MQTT Configuration"
+
+#     config MQTT_BROKER_URL
+#         string "MQTT Broker URL"
+#         default "url"
+#         help
+#             URL to reach MQTT broker.
+
+#     config MQTT_BROKER_USERNAME
+#         string "MQTT Broker Username"
+#         default "username"
+#         help
+#             Username to authenticate MQTT broker.
+
+#     config MQTT_BROKER_PASSWORD
+#         string "MQTT Broker Password"
+#         default "mypassword"
+#         help
+#             Password to authenticate MQTT broker.
+# endmenu
