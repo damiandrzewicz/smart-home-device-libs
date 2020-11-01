@@ -40,7 +40,9 @@ namespace System
         {
             int GetFreeHeapSize(){ return esp_get_free_heap_size(); }
 
-            int GetMinimimFreeHeapsize(){ return esp_get_minimum_free_heap_size(); }
+            int GetMinimimFreeHeapSize(){ return esp_get_minimum_free_heap_size(); }
+
+            //int GetLargestFreeHeapSize(){ return heap_caps_get_largest_free_block(); }
         }
     }
 

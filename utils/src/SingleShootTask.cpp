@@ -2,7 +2,7 @@
 
 #include "esp_log.h"
 
-const char *TAG = "SingleShootTask";
+static const char *TAG = "SingleShootTask";
 
 SingleShootTask::SingleShootTask(const char *name, unsigned portBASE_TYPE priority, unsigned short stackDepth)
     : Task(name, priority, stackDepth)
@@ -18,5 +18,4 @@ void SingleShootTask::execute()
         _stackDepth);
 
     task();
-    deleteTask();
 }

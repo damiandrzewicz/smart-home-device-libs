@@ -10,11 +10,12 @@ Task::Task(const char *name, unsigned portBASE_TYPE priority, unsigned short sta
     _name = name;
     _priority = priority;
     _stackDepth = stackDepth;
+    _events = xEventGroupCreate();
 }
 
 Task::~Task()
 {
-    deleteTask();
+    stop();
 }
 
 void Task::start()
@@ -30,17 +31,39 @@ void Task::stop()
 void Task::taskWrapper(void *param)
 {
     auto task = static_cast<Task*>(param);
-
-
     task->_running = true;
     task->execute();
+    task->_running = false;
+    task->deleteTask();
+    xEventGroupSetBits(task->_events, TaskBit::Executed);
 }
 
+bool Task::checkExecuted(bool block)
+{
+    TickType_t tickstoWait = block ? portMAX_DELAY : 0;
 
+    EventBits_t bits = xEventGroupWaitBits(
+        _events,
+        TaskBit::Executed,
+        pdFALSE,
+        pdFALSE,
+        tickstoWait);
+
+    return (bits & TaskBit::Executed);
+}
+
+bool Task::isExecuted()
+{
+    return checkExecuted(false);
+}
+
+void Task::wait()
+{
+    checkExecuted(true);
+}
 
 void Task::deleteTask()
 {
     ESP_LOGD(TAG, "Deleting task: [%s]", _name);
     vTaskDelete(NULL);
-    _running = false;
 }

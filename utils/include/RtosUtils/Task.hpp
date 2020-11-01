@@ -2,20 +2,27 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
-
+#include "freertos/event_groups.h"
 
 class Task
 {
 public:
 
+    enum TaskBit{
+        Executed = BIT0
+    };
+
     Task(const char *name, unsigned portBASE_TYPE priority, unsigned short stackDepth = configMINIMAL_STACK_SIZE);
 
-    ~Task();
+    virtual ~Task();
 
     void start();
 
     void stop();
+
+    bool isExecuted();
+
+    void wait();
 
 protected:
 
@@ -27,6 +34,8 @@ protected:
 
     void deleteTask();
 
+    bool checkExecuted(bool block);
+
 protected:
     xTaskHandle _handle;
 
@@ -34,4 +43,6 @@ protected:
     unsigned portBASE_TYPE _priority;
     unsigned short _stackDepth;
     bool _running = false;
+
+    EventGroupHandle_t _events;
 };

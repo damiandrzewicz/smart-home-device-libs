@@ -25,7 +25,7 @@ namespace System
         {
             int GetFreeHeapSize(); 
 
-            int GetMinimimFreeHeapsize();
+            int GetMinimimFreeHeapSize();
         }
     }
 

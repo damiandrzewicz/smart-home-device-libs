@@ -2,7 +2,7 @@
 
 #include "esp_log.h"
 
-const char *TAG = "RoutineTask";
+static const char *TAG = "RoutineTask";
 
 RoutineTask::RoutineTask(const char *name, unsigned portBASE_TYPE priority, unsigned short delay, unsigned short stackDepth)
     : Task(name, priority, stackDepth)
@@ -23,7 +23,6 @@ void RoutineTask::execute()
         task();
         wait(_delay);
     }
-    deleteTask();
 }
 
 void RoutineTask::wait(unsigned int delay)
