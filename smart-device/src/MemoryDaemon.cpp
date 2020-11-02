@@ -38,6 +38,6 @@ namespace SmartDevice
             minFreeHeapSize_byte,
             minFreeHeapSize_kbyte);
 
-        new char[1024 * 10];
+        
     }
 }
