@@ -14,6 +14,11 @@ namespace SmartDevice
 
     }
 
+    OtaTask &Kernel::getOtaTask()
+    {
+        return _otaTask;
+    }
+
     void Kernel::printSystemInfo()
     {
         ESP_LOGI(TAG, "Starting...");
@@ -38,6 +43,9 @@ namespace SmartDevice
     void Kernel::performOta()
     {
         ESP_LOGI(TAG, "Performing OTA...");
+
+        _otaTask.start();
+        _otaTask.wait();
     }
 
     void Kernel::initTask()

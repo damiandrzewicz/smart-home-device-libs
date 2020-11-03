@@ -3,6 +3,7 @@
 #include "RtosUtils/RoutineTask.hpp"
 #include "SmartDevice/MemoryDaemon.hpp"
 #include "Network/WifiStation.hpp"
+#include "Ota/OtaTask.hpp"
 
 namespace SmartDevice
 {
@@ -11,6 +12,7 @@ namespace SmartDevice
     public:
         Kernel();
 
+        OtaTask &getOtaTask();
 
     protected:
         virtual void initTask() override;
@@ -29,7 +31,7 @@ namespace SmartDevice
     private:
         MemoryDaemon _memoryDaemon;
         WifiStation _station;
-        //Ota _ota;
+        OtaTask _otaTask;
     };
 };
 
