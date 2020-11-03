@@ -1,4 +1,4 @@
-#include "Network/Wifi.h"
+#include "Network/Wifi.hpp"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

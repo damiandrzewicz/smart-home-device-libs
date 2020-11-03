@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Network/WifiException.h"
+#include "Network/WifiException.hpp"
 
 #include "esp_wifi.h"
 #include "esp_event.h"

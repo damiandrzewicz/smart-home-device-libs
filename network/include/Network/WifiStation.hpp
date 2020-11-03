@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Network/Wifi.h"
+#include "Network/Wifi.hpp"
 
 #include "freertos/event_groups.h"
 
