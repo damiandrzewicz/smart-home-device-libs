@@ -4,6 +4,7 @@
 #include "SmartDevice/MemoryDaemon.hpp"
 #include "Network/WifiStation.hpp"
 #include "Ota/OtaTask.hpp"
+#include "Mqtt/MqttTask.hpp"
 
 namespace SmartDevice
 {
@@ -28,10 +29,13 @@ namespace SmartDevice
 
         void performOta();
 
+        void initMqtt();
+
     private:
         MemoryDaemon _memoryDaemon;
         WifiStation _station;
         OtaTask _otaTask;
+        MqttTask _mqttTask;
     };
 };
 

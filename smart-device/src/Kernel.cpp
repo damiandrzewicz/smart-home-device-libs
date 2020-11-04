@@ -9,7 +9,7 @@ static const char *TAG = "Kernel";
 namespace SmartDevice
 {
     Kernel::Kernel()
-        : RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 8)
+        : RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 20)
     {
 
     }
@@ -48,6 +48,12 @@ namespace SmartDevice
         _otaTask.wait();
     }
 
+    void Kernel::initMqtt()
+    {
+        _mqttTask.start();
+        _mqttTask.wait();
+    }
+
     void Kernel::initTask()
     {
         ESP_LOGI(TAG, "Kernel initialising...");
@@ -59,6 +65,8 @@ namespace SmartDevice
         initNetwork();
 
         performOta();
+
+        initMqtt();
 
         ESP_LOGI(TAG, "Kernel ready!");
     }
