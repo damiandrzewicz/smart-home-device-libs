@@ -18,6 +18,11 @@ Task::~Task()
     stop();
 }
 
+void Task::initTask()
+{
+    ESP_LOGD(TAG, "Init Not Implemented: [%s]", _name.c_str());
+}
+
 void Task::start()
 {
     xTaskCreate(&taskWrapper, _name, _stackDepth, this, _priority, &_handle);
@@ -32,10 +37,16 @@ void Task::taskWrapper(void *param)
 {
     auto task = static_cast<Task*>(param);
     task->_running = true;
+
+    ESP_LOGD(TAG, "Cal init task: [%s]", task->_name);
+    task->initTask();
+
+    ESP_LOGD(TAG, "Cal exec task: [%s]", task->_name);
     task->execute();
+    
     task->_running = false;
-    task->deleteTask();
     xEventGroupSetBits(task->_events, TaskBit::Executed);
+    task->deleteTask();
 }
 
 bool Task::checkExecuted(bool block)
@@ -60,6 +71,11 @@ bool Task::isExecuted()
 void Task::wait()
 {
     checkExecuted(true);
+}
+
+void Task::sleep(unsigned int delay)
+{
+    vTaskDelay(pdMS_TO_TICKS(delay));
 }
 
 void Task::deleteTask()

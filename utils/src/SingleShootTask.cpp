@@ -12,7 +12,7 @@ SingleShootTask::SingleShootTask(const char *name, unsigned portBASE_TYPE priori
 
 void SingleShootTask::execute()
 {
-    ESP_LOGD(TAG, "Starting... , name:[%s], prio:[%d], stackSize:[%d]", 
+    ESP_LOGD(TAG, "Start: name:[%s], prio:[%d], stackSize:[%d]", 
         _name,
         _priority,
         _stackDepth);

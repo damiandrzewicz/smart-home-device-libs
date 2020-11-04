@@ -12,7 +12,7 @@ RoutineTask::RoutineTask(const char *name, unsigned portBASE_TYPE priority, unsi
 
 void RoutineTask::execute()
 {
-    ESP_LOGD(TAG, "Starting... , name:[%s], prio:[%d], stackSize:[%d], delay: [%d ms]", 
+    ESP_LOGD(TAG, "Start: name:[%s], prio:[%d], stackSize:[%d], delay: [%d ms]", 
         _name,
         _priority,
         _stackDepth,
@@ -21,11 +21,7 @@ void RoutineTask::execute()
     while(_running)
     {
         task();
-        wait(_delay);
+        sleep(_delay);
     }
 }
 
-void RoutineTask::wait(unsigned int delay)
-{
-    vTaskDelay(pdMS_TO_TICKS(delay));
-}

@@ -28,6 +28,8 @@ protected:
 
     virtual void task() = 0;
 
+    virtual void initTask();
+
     static void taskWrapper(void *param);
 
     virtual void execute() = 0;
@@ -35,6 +37,8 @@ protected:
     void deleteTask();
 
     bool checkExecuted(bool block);
+
+    void sleep(unsigned int delay);
 
 protected:
     xTaskHandle _handle;

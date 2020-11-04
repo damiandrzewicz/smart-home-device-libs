@@ -10,8 +10,6 @@ public:
 protected:
     virtual void execute() override;
 
-    void wait(unsigned int delay);
-
 private:
     unsigned short _delay = 0;
 };
