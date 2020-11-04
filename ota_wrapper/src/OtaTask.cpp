@@ -108,12 +108,12 @@ void OtaTask::task()
     ESP_LOGI(TAG, "Starting OTA...");
     ESP_LOGD(TAG, "URL: [%s]", _url.c_str());
 
-    esp_http_client_config_t config = {
-        .url = _url.c_str(),
-        .cert_pem = (char *)server_cert_pem_start,
-        .timeout_ms = CONFIG_EXAMPLE_OTA_RECV_TIMEOUT,
-        .event_handler = _http_event_handler,
-    };
+    esp_http_client_config_t config = {};
+    config.url = _url.c_str();
+    config.cert_pem = (char *)server_cert_pem_start;
+    config.timeout_ms = CONFIG_EXAMPLE_OTA_RECV_TIMEOUT;
+    config.event_handler = _http_event_handler;
+    
 
 #ifdef CONFIG_EXAMPLE_SKIP_COMMON_NAME_CHECK
     config.skip_cert_common_name_check = true;
