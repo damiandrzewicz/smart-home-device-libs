@@ -16,8 +16,8 @@
 esp_https_ota_handle_t OtaTask::_Https_ota_handle = NULL;
 
 static const char *TAG = "Ota";
-extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
-extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
+extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_ota_pem_start");
+extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_ota_pem_end");
 
 esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
