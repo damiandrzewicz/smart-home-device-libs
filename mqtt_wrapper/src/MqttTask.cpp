@@ -4,6 +4,9 @@
 
 #include "esp_log.h"
 
+#include "Mqtt/MessageOut.hpp"
+#include "Mqtt/MqttException.hpp"
+
 static const char *TAG = "Mqtt";
 
 using namespace std::placeholders;
@@ -22,8 +25,9 @@ namespace{
 
 MqttTask::MqttTask() : SingleShootTask("MqttTask", 4, 1024 * 6)
 {
-    ESP_LOGI(TAG, "her123");
     _broker_url = CONFIG_BROKER_URL;
+    setClientId("test_mqtt_cl_id");
+    //_pIncomingMessagesQueue = std::make_shared<MapTaskSafe<int, std::shared_ptr<MessageIn>>>();
 
 #ifdef CONFIG_BROKER_USE_PASSWORD
     _use_credentials = true;
@@ -36,6 +40,28 @@ MqttTask::MqttTask() : SingleShootTask("MqttTask", 4, 1024 * 6)
 void MqttTask::setClientId(const std::string &id)
 {
     _client_id = id;
+}
+
+VectorTaskSafe<std::shared_ptr<MessageIn>> &MqttTask::getIncomingMessages()
+{
+    return _incomingMessages;
+}
+
+void MqttTask::setIncomingMessages(VectorTaskSafe<std::shared_ptr<MessageIn>> inomingMessages)
+{
+    _incomingMessages = inomingMessages;
+}
+
+void MqttTask::send(const MessageOut & msgOut)
+{
+    ESP_LOGD(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut.topic.c_str(), msgOut.data.c_str(), msgOut.qos, msgOut.retain);
+    int msg_id = esp_mqtt_client_publish(_client, msgOut.topic.c_str(), msgOut.data.c_str(), 0, static_cast<int>(msgOut.qos), static_cast<int>(msgOut.retain));
+    if(msg_id == -1)
+    {
+        std::string err = "Cannot send message, id: " + std::to_string(msg_id);
+        ESP_LOGW(TAG, "%s", err.c_str());
+        throw MqttException(err.c_str());
+    }
 }
 
 void MqttTask::initTask()
@@ -76,7 +102,7 @@ void MqttTask::initTask()
 
     esp_mqtt_client_start(_client);
 
-    ESP_LOGI(TAG, "MQTT client connected to the broker!");
+    ESP_LOGI(TAG, "MQTT client initialised!");
    
 }
 
@@ -95,12 +121,16 @@ void MqttTask::onEvent(void *handler_args, esp_event_base_t base, int32_t event_
     ESP_LOGD(TAG, "event dispatched from event loop base=%s, event_id=%d", base, event_id);
 
     //ESP_LOGD(TAG, "sunscr size: %d", subscribtions.size());
-
+    int msg_id ;
      switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
             //xEventGroupSetBits(this->eventBits, Status::Connected);
             //doSubscribtions();
             //doAutoPublications();
+
+            msg_id = esp_mqtt_client_subscribe(_client, "/topic/qos0", 0);
+            ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+
             onConnected();
             break;
         case MQTT_EVENT_DISCONNECTED:
@@ -120,8 +150,11 @@ void MqttTask::onEvent(void *handler_args, esp_event_base_t base, int32_t event_
             onPublished(event->msg_id);
             break;
         case MQTT_EVENT_DATA:
-            //onData(Message(std::string(event->topic, event->topic_len ), 
-            //    std::string(event->data, event->data_len)));
+            onData(
+                event->msg_id, 
+                std::string(event->topic, event->topic_len ), 
+                std::string(event->data, event->data_len), 
+                event->total_data_len);
             break;
         case MQTT_EVENT_ERROR:
             onError();
@@ -157,10 +190,35 @@ void MqttTask::onPublished(int msgId)
     ESP_LOGD(TAG, "onPublished...");
 }
 
-void MqttTask::onData()
+void MqttTask::onData(int msgId, std::string topic, std::string data, int totalDataLen)
 {
     ESP_LOGD(TAG, "onData");
-    //dispatch(message);
+
+    ESP_LOGD(TAG, "Received message: id: %d topic: %s (%d bytes), data: %s (%d bytes), totalDataLen: %d",
+        msgId, topic.c_str(), topic.length(), data.c_str(), data.length(), totalDataLen);
+
+    std::shared_ptr<MessageIn> message = nullptr;
+
+    for(int i = 0; i < _incomingMessages.size(); i++)
+    {
+        auto msg = _incomingMessages.at(i);
+        if(msg && msg->id == msgId){ message = msg; break; }
+    }
+
+    if(!message)
+    { 
+        message = std::make_shared<MessageIn>(msgId);
+        _incomingMessages.push_back(message);
+        message->topic = topic;
+    }
+
+    message->data += data;
+
+    if(message->data.length() == totalDataLen)
+    { 
+        ESP_LOGD(TAG, "Setting msg (id: %d) to ready", msgId);
+        message->ready = true; 
+    }
 }
 
 void MqttTask::onError()

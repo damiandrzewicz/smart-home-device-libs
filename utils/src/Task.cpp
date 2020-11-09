@@ -20,7 +20,7 @@ Task::~Task()
 
 void Task::initTask()
 {
-    ESP_LOGD(TAG, "Init Not Implemented: [%s]", _name.c_str());
+    ESP_LOGD(TAG, "Init Not Implemented: [%s]", _name);
 }
 
 void Task::start()
@@ -43,7 +43,7 @@ void Task::taskWrapper(void *param)
 
     ESP_LOGD(TAG, "Cal exec task: [%s]", task->_name);
     task->execute();
-    
+
     task->_running = false;
     xEventGroupSetBits(task->_events, TaskBit::Executed);
     task->deleteTask();

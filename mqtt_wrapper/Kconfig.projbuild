@@ -12,6 +12,12 @@ menu "MQTT Configuration"
         help
             This allows you to skip login and password.
 
+    config BROKER_USE_SSL
+        bool "Use SLL auth"
+        default n
+        help
+            This allows you to use SSL auth
+
     config BROKER_LOGIN
         string "Broker Login"
         default "test"

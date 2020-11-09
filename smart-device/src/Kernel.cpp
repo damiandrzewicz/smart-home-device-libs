@@ -4,14 +4,16 @@
 
 #include "SystemUtils/Utils.hpp"
 
+#include "RtosUtils/MapTaskSafe.hpp"
+
 static const char *TAG = "Kernel";
 
 namespace SmartDevice
 {
     Kernel::Kernel()
-        : RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 20)
+        : RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 18)
     {
-
+        
     }
 
     OtaTask &Kernel::getOtaTask()
@@ -50,8 +52,12 @@ namespace SmartDevice
 
     void Kernel::initMqtt()
     {
+        _mqttTask.setClientId(System::Utils::MAC::GetClientId());
         _mqttTask.start();
         _mqttTask.wait();
+
+        _incomingMessageDispatcherTask.registerIncomingMessages(&_mqttTask.getIncomingMessages());
+        _incomingMessageDispatcherTask.start();
     }
 
     void Kernel::initTask()

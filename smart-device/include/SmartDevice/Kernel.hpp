@@ -5,6 +5,8 @@
 #include "Network/WifiStation.hpp"
 #include "Ota/OtaTask.hpp"
 #include "Mqtt/MqttTask.hpp"
+#include "SmartDevice/IncomingMessageDispatcher.hpp"
+
 
 namespace SmartDevice
 {
@@ -36,6 +38,7 @@ namespace SmartDevice
         WifiStation _station;
         OtaTask _otaTask;
         MqttTask _mqttTask;
+        IncomingMessageDispatcher _incomingMessageDispatcherTask;
     };
 };
 

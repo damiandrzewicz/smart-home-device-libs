@@ -11,3 +11,5 @@ COMPONENT_ADD_INCLUDEDIRS = include
 
 CXXFLAGS += -std=c++14
 CXXFLAGS += -std=c++17
+
+COMPONENT_EMBED_TXTFILES :=  ${PROJECT_PATH}/ota_certs/ca_cert_ota.pem
