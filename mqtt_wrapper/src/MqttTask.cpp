@@ -23,7 +23,9 @@ namespace{
     }  
 }
 
-MqttTask::MqttTask() : SingleShootTask("MqttTask", 4, 1024 * 6)
+MqttTask::MqttTask(MessagesContainer &messagesContainer) 
+    :   SingleShootTask("MqttTask", 4, 1024 * 6), 
+        _messagesContainer(messagesContainer)
 {
     _broker_url = CONFIG_BROKER_URL;
     setClientId("test_mqtt_cl_id");
@@ -40,16 +42,6 @@ MqttTask::MqttTask() : SingleShootTask("MqttTask", 4, 1024 * 6)
 void MqttTask::setClientId(const std::string &id)
 {
     _client_id = id;
-}
-
-VectorTaskSafe<std::shared_ptr<MessageIn>> &MqttTask::getIncomingMessages()
-{
-    return _incomingMessages;
-}
-
-void MqttTask::setIncomingMessages(VectorTaskSafe<std::shared_ptr<MessageIn>> inomingMessages)
-{
-    _incomingMessages = inomingMessages;
 }
 
 void MqttTask::send(const MessageOut & msgOut)
@@ -197,18 +189,20 @@ void MqttTask::onData(int msgId, std::string topic, std::string data, int totalD
     ESP_LOGD(TAG, "Received message: id: %d topic: %s (%d bytes), data: %s (%d bytes), totalDataLen: %d",
         msgId, topic.c_str(), topic.length(), data.c_str(), data.length(), totalDataLen);
 
+    MessagesContainer::IncomingMessages &incomingMessages = _messagesContainer.getIncomingMessages();
+
     std::shared_ptr<MessageIn> message = nullptr;
 
-    for(int i = 0; i < _incomingMessages.size(); i++)
+    for(int i = 0; i < incomingMessages.size(); i++)
     {
-        auto msg = _incomingMessages.at(i);
+        auto msg = incomingMessages.at(i);
         if(msg && msg->id == msgId){ message = msg; break; }
     }
 
     if(!message)
     { 
         message = std::make_shared<MessageIn>(msgId);
-        _incomingMessages.push_back(message);
+        incomingMessages.push_back(message);
         message->topic = topic;
     }
 

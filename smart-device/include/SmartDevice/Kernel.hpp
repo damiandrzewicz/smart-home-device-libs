@@ -5,7 +5,9 @@
 #include "Network/WifiStation.hpp"
 #include "Ota/OtaTask.hpp"
 #include "Mqtt/MqttTask.hpp"
-#include "SmartDevice/IncomingMessageDispatcher.hpp"
+#include "SmartMessage/IncomingMessageDispatcher.hpp"
+
+#include "SmartMessage/MessagesContainer.hpp"
 
 
 namespace SmartDevice
@@ -16,6 +18,7 @@ namespace SmartDevice
         Kernel();
 
         OtaTask &getOtaTask();
+        IncomingMessageDispatcher &getIncomingMessageDispatcherTask();
 
     protected:
         virtual void initTask() override;
@@ -33,7 +36,11 @@ namespace SmartDevice
 
         void initMqtt();
 
+        void initMessageDispatchers();
+
     private:
+        MessagesContainer _messgesContainer;
+
         MemoryDaemon _memoryDaemon;
         WifiStation _station;
         OtaTask _otaTask;

@@ -7,7 +7,7 @@
 #include "mqtt_client.h"
 
 #include "RtosUtils/MapTaskSafe.hpp"
-#include "RtosUtils/VectorTaskSafe.hpp"
+#include "SmartMessage/MessagesContainer.hpp"
 #include "Mqtt/MessageIn.hpp"
 
 class MessageOut;
@@ -15,17 +15,11 @@ class MessageOut;
 class MqttTask : public SingleShootTask
 {
 public:
-    MqttTask();
+    MqttTask(MessagesContainer &messagesContainer);
 
     void setClientId(const std::string &id);
 
     void send(const MessageOut & msgOut);
-
-    VectorTaskSafe<std::shared_ptr<MessageIn>> &getIncomingMessages();
-
-    void setIncomingMessages(VectorTaskSafe<std::shared_ptr<MessageIn>> inomingMessages);
-
-    //void registerEvent(const std::string &topic)
 
 protected:
 
@@ -56,5 +50,5 @@ private:
 
     std::string _client_id;
 
-    VectorTaskSafe<std::shared_ptr<MessageIn>> _incomingMessages;
+    MessagesContainer &_messagesContainer;
 };

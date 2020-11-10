@@ -20,7 +20,7 @@ public:
         }
     }
 
-    VectorTaskSafe(const VectorTaskSafe& orig) : threadSafeVector(orig.vec) {
+    VectorTaskSafe(const VectorTaskSafe& orig) : threadSafeVector(orig.threadSafeVector) {
         xMutex = xSemaphoreCreateMutex();
         if(xMutex == NULL)
         {

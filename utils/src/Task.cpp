@@ -25,7 +25,10 @@ void Task::initTask()
 
 void Task::start()
 {
-    xTaskCreate(&taskWrapper, _name, _stackDepth, this, _priority, &_handle);
+    BaseType_t xReturned = xTaskCreate(&taskWrapper, _name, _stackDepth, this, _priority, &_handle);
+
+    if(xReturned == pdPASS){ ESP_LOGD(TAG, "Task [%s] created!", _name); }
+    else if(xReturned == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY){ ESP_LOGD(TAG, "Cannot create task [%s]! Too less memory!", _name); }
 }
 
 void Task::stop()

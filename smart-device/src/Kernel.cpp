@@ -11,7 +11,9 @@ static const char *TAG = "Kernel";
 namespace SmartDevice
 {
     Kernel::Kernel()
-        : RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 18)
+        :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 18),
+            _mqttTask(_messgesContainer),
+            _incomingMessageDispatcherTask(_messgesContainer.getIncomingMessages())
     {
         
     }
@@ -19,6 +21,11 @@ namespace SmartDevice
     OtaTask &Kernel::getOtaTask()
     {
         return _otaTask;
+    }
+
+    IncomingMessageDispatcher &Kernel::getIncomingMessageDispatcherTask()
+    {
+        return _incomingMessageDispatcherTask;
     }
 
     void Kernel::printSystemInfo()
@@ -56,7 +63,11 @@ namespace SmartDevice
         _mqttTask.start();
         _mqttTask.wait();
 
-        _incomingMessageDispatcherTask.registerIncomingMessages(&_mqttTask.getIncomingMessages());
+        
+    }
+
+    void Kernel::initMessageDispatchers()
+    {
         _incomingMessageDispatcherTask.start();
     }
 
@@ -73,6 +84,8 @@ namespace SmartDevice
         performOta();
 
         initMqtt();
+
+        initMessageDispatchers();
 
         ESP_LOGI(TAG, "Kernel ready!");
     }

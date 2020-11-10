@@ -11,3 +11,4 @@ COMPONENT_ADD_INCLUDEDIRS = include
 
 CXXFLAGS += -std=c++14
 CXXFLAGS += -std=c++17
+CXXFLAGS += -fconcepts
