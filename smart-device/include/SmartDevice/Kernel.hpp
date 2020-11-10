@@ -6,6 +6,7 @@
 #include "Ota/OtaTask.hpp"
 #include "Mqtt/MqttTask.hpp"
 #include "SmartMessage/IncomingMessageDispatcher.hpp"
+#include "SmartMessage/OutcomingMessageDispatcher.hpp"
 
 #include "SmartMessage/MessagesContainer.hpp"
 
@@ -45,7 +46,9 @@ namespace SmartDevice
         WifiStation _station;
         OtaTask _otaTask;
         MqttTask _mqttTask;
+
         IncomingMessageDispatcher _incomingMessageDispatcherTask;
+        OutcomingMessageDispatcher _outcomingMessageDispatcherTask;
     };
 };
 

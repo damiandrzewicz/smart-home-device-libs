@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "RtosUtils/RoutineTask.hpp"
 
@@ -18,8 +17,7 @@ protected:
     virtual void task() override;
 
 private:
-
-    void processMessage(auto message);
+    void process(auto message);
 
 private:
     MessagesContainer::IncomingMessages &_incomingMessages;

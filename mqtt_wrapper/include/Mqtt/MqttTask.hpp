@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "RtosUtils/SingleShootTask.hpp"
 
@@ -19,7 +20,7 @@ public:
 
     void setClientId(const std::string &id);
 
-    void send(const MessageOut & msgOut);
+    void send(std::shared_ptr<MessageOut> msgOut);
 
 protected:
 

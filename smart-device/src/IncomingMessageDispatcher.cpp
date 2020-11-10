@@ -1,7 +1,5 @@
 #include "SmartMessage/IncomingMessageDispatcher.hpp"
 
-
-#include "freertos/FreeRTOS.h"
 #include "esp_log.h"
 
 static const char *TAG = "IncomingMessageDispatcher";
@@ -26,17 +24,16 @@ void IncomingMessageDispatcher::task()
         if((*it)->ready)
         {
             ESP_LOGD(TAG, "Processing msg (id: %d), msg size: %d", (*it)->id, (*it)->data.length());
-            processMessage(*it);
+            process(*it);
 
             it = _incomingMessages.erase(it);
         }
         else{ ++it; }
     }
     ESP_LOGD(TAG, "after iter: _incomingMessages.size=%d", _incomingMessages.size());
-
 }   
 
-void IncomingMessageDispatcher::processMessage(auto message)
+void IncomingMessageDispatcher::process(auto message)
 {
 
 }

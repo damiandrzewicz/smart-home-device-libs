@@ -44,10 +44,10 @@ void MqttTask::setClientId(const std::string &id)
     _client_id = id;
 }
 
-void MqttTask::send(const MessageOut & msgOut)
+void MqttTask::send(std::shared_ptr<MessageOut> msgOut)
 {
-    ESP_LOGD(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut.topic.c_str(), msgOut.data.c_str(), msgOut.qos, msgOut.retain);
-    int msg_id = esp_mqtt_client_publish(_client, msgOut.topic.c_str(), msgOut.data.c_str(), 0, static_cast<int>(msgOut.qos), static_cast<int>(msgOut.retain));
+    ESP_LOGD(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut->topic.c_str(), msgOut->data.c_str(), msgOut->qos, msgOut->retain);
+    int msg_id = esp_mqtt_client_publish(_client, msgOut->topic.c_str(), msgOut->data.c_str(), 0, static_cast<int>(msgOut->qos), static_cast<int>(msgOut->retain));
     if(msg_id == -1)
     {
         std::string err = "Cannot send message, id: " + std::to_string(msg_id);
