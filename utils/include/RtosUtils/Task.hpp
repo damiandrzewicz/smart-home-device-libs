@@ -9,7 +9,8 @@ class Task
 public:
 
     enum TaskBit{
-        Executed = BIT0
+        Executed = BIT0,
+        Initialized = BIT1
     };
 
     Task(const char *name, unsigned portBASE_TYPE priority, unsigned short stackDepth = configMINIMAL_STACK_SIZE);
@@ -22,7 +23,11 @@ public:
 
     bool isExecuted();
 
-    void wait();
+    bool isInitialized();
+
+    void waitForInitialized();
+
+    void waitForExecuted();
 
 protected:
 
@@ -35,6 +40,8 @@ protected:
     virtual void execute() = 0;
 
     void deleteTask();
+
+    bool checkInitialized(bool block);
 
     bool checkExecuted(bool block);
 

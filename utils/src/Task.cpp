@@ -43,6 +43,7 @@ void Task::taskWrapper(void *param)
 
     ESP_LOGD(TAG, "Cal init task: [%s]", task->_name);
     task->initTask();
+    xEventGroupSetBits(task->_events, TaskBit::Initialized);
 
     ESP_LOGD(TAG, "Cal exec task: [%s]", task->_name);
     task->execute();
@@ -50,6 +51,20 @@ void Task::taskWrapper(void *param)
     task->_running = false;
     xEventGroupSetBits(task->_events, TaskBit::Executed);
     task->deleteTask();
+}
+
+bool Task::checkInitialized(bool block)
+{
+    TickType_t tickstoWait = block ? portMAX_DELAY : 0;
+
+    EventBits_t bits = xEventGroupWaitBits(
+        _events,
+        TaskBit::Initialized,
+        pdFALSE,
+        pdFALSE,
+        tickstoWait);
+
+    return (bits & TaskBit::Initialized);
 }
 
 bool Task::checkExecuted(bool block)
@@ -66,12 +81,22 @@ bool Task::checkExecuted(bool block)
     return (bits & TaskBit::Executed);
 }
 
+bool Task::isInitialized()
+{
+    return checkInitialized(false);
+}
+
 bool Task::isExecuted()
 {
     return checkExecuted(false);
 }
 
-void Task::wait()
+void Task::waitForInitialized()
+{
+    checkInitialized(true);
+}
+
+void Task::waitForExecuted()
 {
     checkExecuted(true);
 }
