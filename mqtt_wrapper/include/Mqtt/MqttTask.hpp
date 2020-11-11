@@ -2,25 +2,26 @@
 
 #include <string>
 #include <memory>
+#include <list>
 
-#include "RtosUtils/SingleShootTask.hpp"
+#include "RtosUtils/RoutineTask.hpp"
+#include "RtosUtils/SemaphoreGuard.hpp"
 
 #include "mqtt_client.h"
 
-#include "RtosUtils/MapTaskSafe.hpp"
-#include "SmartMessage/MessagesContainer.hpp"
-#include "Mqtt/MessageIn.hpp"
 
-class MessageOut;
+#include "Mqtt/MqttMessage.hpp"
 
-class MqttTask : public SingleShootTask
+class MqttTask : public RoutineTask
 {
+    typedef std::list<std::shared_ptr<MqttMessage>> MessageBuffer;
+
 public:
-    MqttTask(MessagesContainer &messagesContainer);
+    MqttTask();
 
     void setClientId(const std::string &id);
 
-    void send(std::shared_ptr<MessageOut> msgOut);
+    void send(std::shared_ptr<MqttMessage> msgOut);
 
 protected:
 
@@ -37,6 +38,9 @@ protected:
     virtual void onError();
     virtual void onUnhandled(int eventId);
 
+private:
+    void processIncomingMessages();
+    void processOutcomingMessages();
 
 
 private:
@@ -51,5 +55,9 @@ private:
 
     std::string _client_id;
 
-    MessagesContainer &_messagesContainer;
+    MessageBuffer _incomingMessageBuffer;
+    SemaphoreHandle_t _incomingMessageMutex;
+
+    MessageBuffer _outcomingMessageBuffer;
+    SemaphoreHandle_t _outcomingMessageMutex;
 };

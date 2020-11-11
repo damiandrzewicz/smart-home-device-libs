@@ -1,10 +1,10 @@
-#include "RtosUtils/BinarySemaphoreGuard.hpp"
+#include "RtosUtils/SemaphoreGuard.hpp"
 
 #include "esp_log.h"
 
-static const char *TAG = "BinarySemaphoreGuard";
+static const char *TAG = "SemaphoreGuard";
 
-BinarySemaphoreGuard::BinarySemaphoreGuard(SemaphoreHandle_t handle)
+SemaphoreGuard::SemaphoreGuard(SemaphoreHandle_t handle)
 {
     _handle = handle;
     if(xSemaphoreTake( _handle, portMAX_DELAY ) != pdTRUE)
@@ -13,7 +13,7 @@ BinarySemaphoreGuard::BinarySemaphoreGuard(SemaphoreHandle_t handle)
     }
 }
 
-BinarySemaphoreGuard::~BinarySemaphoreGuard()
+SemaphoreGuard::~SemaphoreGuard()
 {
     if(xSemaphoreGive( _handle ) != pdTRUE)
     {

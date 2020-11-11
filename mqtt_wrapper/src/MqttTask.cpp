@@ -4,7 +4,7 @@
 
 #include "esp_log.h"
 
-#include "Mqtt/MessageOut.hpp"
+#include "Mqtt/MqttMessage.hpp"
 #include "Mqtt/MqttException.hpp"
 
 static const char *TAG = "Mqtt";
@@ -23,13 +23,24 @@ namespace{
     }  
 }
 
-MqttTask::MqttTask(MessagesContainer &messagesContainer) 
-    :   SingleShootTask("MqttTask", 4, 1024 * 6), 
-        _messagesContainer(messagesContainer)
+MqttTask::MqttTask(/*MessagesContainer &messagesContainer*/) 
+    :   RoutineTask("MqttTask", 4, 500, 1024 * 6)//, 
+        //_messagesContainer(messagesContainer)
 {
     _broker_url = CONFIG_BROKER_URL;
     setClientId("test_mqtt_cl_id");
-    //_pIncomingMessagesQueue = std::make_shared<MapTaskSafe<int, std::shared_ptr<MessageIn>>>();
+
+    _incomingMessageMutex = xSemaphoreCreateMutex();
+    if(_incomingMessageMutex == NULL)
+    {
+        ESP_LOGE(TAG, "Cannot create mutex, ho heap left...");
+    }
+
+    _outcomingMessageMutex = xSemaphoreCreateMutex();
+    if(_outcomingMessageMutex == NULL)
+    {
+        ESP_LOGE(TAG, "Cannot create mutex, ho heap left...");
+    }
 
 #ifdef CONFIG_BROKER_USE_PASSWORD
     _use_credentials = true;
@@ -44,7 +55,7 @@ void MqttTask::setClientId(const std::string &id)
     _client_id = id;
 }
 
-void MqttTask::send(std::shared_ptr<MessageOut> msgOut)
+void MqttTask::send(std::shared_ptr<MqttMessage> msgOut)
 {
     ESP_LOGD(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut->topic.c_str(), msgOut->data.c_str(), msgOut->qos, msgOut->retain);
     int msg_id = esp_mqtt_client_publish(_client, msgOut->topic.c_str(), msgOut->data.c_str(), 0, static_cast<int>(msgOut->qos), static_cast<int>(msgOut->retain));
@@ -100,7 +111,60 @@ void MqttTask::initTask()
 
 void MqttTask::task()
 {
+    processIncomingMessages();
+    processOutcomingMessages();
+}
 
+void MqttTask::processIncomingMessages()
+{
+    SemaphoreGuard lock(_incomingMessageMutex);
+    ESP_LOGD(TAG, "Processing incoming messages...");
+    ESP_LOGD(TAG, "Buffer size before: [%d]", _incomingMessageBuffer.size());
+
+    auto it = _incomingMessageBuffer.begin();
+    while(it != _incomingMessageBuffer.end())
+    {
+        if((*it)->ready)
+        {
+            //process message
+
+            //delete message
+            it = _incomingMessageBuffer.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    ESP_LOGD(TAG, "Buffer size after: [%d]", _incomingMessageBuffer.size());
+}
+
+void MqttTask::processOutcomingMessages()
+{
+    SemaphoreGuard lock(_outcomingMessageMutex);
+
+    ESP_LOGD(TAG, "Processing outcoming messages...");
+    ESP_LOGD(TAG, "Buffer size before: [%d]", _outcomingMessageBuffer.size());
+
+    auto it = _outcomingMessageBuffer.begin();
+    while(it != _outcomingMessageBuffer.end())
+    {
+        if((*it)->ready)
+        {
+            //process message
+            send(*it);
+
+            //delete message
+            it = _outcomingMessageBuffer.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    ESP_LOGD(TAG, "Buffer size after: [%d]", _outcomingMessageBuffer.size());
 }
 
 /************************************/
@@ -189,29 +253,29 @@ void MqttTask::onData(int msgId, std::string topic, std::string data, int totalD
     ESP_LOGD(TAG, "Received message: id: %d topic: %s (%d bytes), data: %s (%d bytes), totalDataLen: %d",
         msgId, topic.c_str(), topic.length(), data.c_str(), data.length(), totalDataLen);
 
-    MessagesContainer::IncomingMessages &incomingMessages = _messagesContainer.getIncomingMessages();
+    SemaphoreGuard lock(_incomingMessageMutex);
+    auto foundMessageIterator = std::find_if(_incomingMessageBuffer.begin(), _incomingMessageBuffer.end(), [&](auto msg){
+        return msg->id == msgId;
+    });
 
-    std::shared_ptr<MessageIn> message = nullptr;
-
-    for(int i = 0; i < incomingMessages.size(); i++)
+    std::shared_ptr<MqttMessage> message = nullptr;
+    if(foundMessageIterator == _incomingMessageBuffer.end())
     {
-        auto msg = incomingMessages.at(i);
-        if(msg && msg->id == msgId){ message = msg; break; }
-    }
-
-    if(!message)
-    { 
-        message = std::make_shared<MessageIn>(msgId);
-        incomingMessages.push_back(message);
+        message = std::make_shared<MqttMessage>(msgId);
+        _incomingMessageBuffer.push_back(message);
         message->topic = topic;
     }
-
+    else
+    {
+        message = *foundMessageIterator;
+    }
+    
     message->data += data;
 
     if(message->data.length() == totalDataLen)
     { 
-        ESP_LOGD(TAG, "Setting msg (id: %d) to ready", msgId);
-        message->ready = true; 
+         ESP_LOGD(TAG, "Setting msg (id: %d) to ready", msgId);
+         message->ready = true; 
     }
 }
 

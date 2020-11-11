@@ -13,10 +13,10 @@ static const char *TAG = "Kernel";
 namespace SmartDevice
 {
     Kernel::Kernel()
-        :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 18),
-            _mqttTask(_messgesContainer),
-            _incomingMessageDispatcherTask(_messgesContainer.getIncomingMessages()),
-            _outcomingMessageDispatcherTask(_messgesContainer.getOutcomingMessages())
+        :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 18)
+            //_mqttTask(_messgesContainer),
+            //_incomingMessageDispatcherTask(_messgesContainer.getIncomingMessages()),
+            //_outcomingMessageDispatcherTask(_messgesContainer.getOutcomingMessages())
     {
         
     }
@@ -26,10 +26,10 @@ namespace SmartDevice
         return _otaTask;
     }
 
-    IncomingMessageDispatcher &Kernel::getIncomingMessageDispatcherTask()
-    {
-        return _incomingMessageDispatcherTask;
-    }
+    // IncomingMessageDispatcher &Kernel::getIncomingMessageDispatcherTask()
+    // {
+    //     return _incomingMessageDispatcherTask;
+    // }
 
     void Kernel::printSystemInfo()
     {
@@ -69,12 +69,12 @@ namespace SmartDevice
 
     void Kernel::initMessageDispatchers()
     {
-        _incomingMessageDispatcherTask.start();
-        _incomingMessageDispatcherTask.waitForInitialized();
+        //_incomingMessageDispatcherTask.start();
+        //_incomingMessageDispatcherTask.waitForInitialized();
 
-        _outcomingMessageDispatcherTask.setSender(std::bind(&MqttTask::send, _mqttTask, std::placeholders::_1));
-        _outcomingMessageDispatcherTask.start();
-        _incomingMessageDispatcherTask.waitForInitialized();
+        //_outcomingMessageDispatcherTask.setSender(std::bind(&MqttTask::send, _mqttTask, std::placeholders::_1));
+        //_outcomingMessageDispatcherTask.start();
+        //_incomingMessageDispatcherTask.waitForInitialized();
     }
 
     void Kernel::initTask()

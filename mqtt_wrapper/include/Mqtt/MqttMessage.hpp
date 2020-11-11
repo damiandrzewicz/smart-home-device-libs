@@ -2,15 +2,16 @@
 
 #include <string>
 
-class Message
+class MqttMessage
 {
 public:
-    Message(){}
-    Message(int id){ this->id = id; }
+    MqttMessage(){}
+    MqttMessage(int id){ this->id = id; }
 
     int id = -1;
     std::string data;
     std::string topic;
     uint8_t qos;
+    bool retain = false;
     bool ready = false;
 };

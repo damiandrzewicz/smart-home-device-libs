@@ -3,11 +3,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
-class BinarySemaphoreGuard
+class SemaphoreGuard
 {
 public:
-    BinarySemaphoreGuard(SemaphoreHandle_t handle);
-    ~BinarySemaphoreGuard();
+    SemaphoreGuard(SemaphoreHandle_t handle);
+    ~SemaphoreGuard();
 
 private:
     SemaphoreHandle_t _handle;

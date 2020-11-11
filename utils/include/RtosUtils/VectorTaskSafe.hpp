@@ -4,7 +4,7 @@
 
 #include "esp_log.h"
 
-#include "RtosUtils/BinarySemaphoreGuard.hpp"
+#include "RtosUtils/SemaphoreGuard.hpp"
 
 
 
@@ -55,21 +55,21 @@ public:
     void assign(InputIterator first, InputIterator last)
     {
         //using a local lock_guard to lock mutex guarantees that the mutex will be unlocked on destruction and in the case of an exception being thrown
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.assign(first, last);
     }
 
     void assign(size_type n, const value_type& val)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.assign(n, val);
     }
 
     void assign(std::initializer_list<value_type> il)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.assign(il.begin(), il.end());
     }
@@ -88,7 +88,7 @@ public:
     /*wrappers for back() functions*/
     reference back()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.back();
     }
@@ -101,7 +101,7 @@ public:
     /*wrappers for begin() functions*/
     iterator begin()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.begin();
     }
@@ -132,7 +132,7 @@ public:
     /*wrapper for clear() function*/
     void clear()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.clear();
     }
@@ -152,14 +152,14 @@ public:
     /*wrappers for data() functions*/
     value_type* data()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.data();
     }
 
     const value_type* data() const noexcept
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.data();
     }
@@ -168,7 +168,7 @@ public:
     template <class... Args>
     void emplace(const iterator position, Args&&... args)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.emplace(position, args...);
     }
@@ -177,7 +177,7 @@ public:
     template <class... Args>
     void emplace_back(Args&&... args)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.emplace_back(args...);
     }
@@ -191,7 +191,7 @@ public:
     /*wrappers for end() functions*/
     iterator end()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.end();
     }
@@ -204,14 +204,14 @@ public:
     /*wrapper functions for erase()*/
     iterator erase(const_iterator position)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.erase(position);
     }
 
     iterator erase(const_iterator first, const_iterator last)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.erase(first, last);
     }
@@ -219,7 +219,7 @@ public:
     /*wrapper functions for front()*/
     reference front()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.front();
     }
@@ -238,14 +238,14 @@ public:
     /*wrapper functions for insert*/
     iterator insert(const_iterator position, const value_type& val)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.insert(position, val); 
     }
 
     iterator insert(const_iterator position, size_type n, const value_type& val)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.insert(position, n, val);
     }
@@ -253,21 +253,21 @@ public:
     template <class InputIterator>
     iterator insert(const_iterator position, InputIterator first, InputIterator last)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.insert(position, first, last);
     }
 
     iterator insert(const_iterator position, value_type&& val)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.insert(position, val);
     }
 
     iterator insert(const_iterator position, std::initializer_list<value_type> il)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.insert(position, il.begin(), il.end());
     }
@@ -281,21 +281,21 @@ public:
     /*wrapper functions for operator =*/
     std::vector<T>& operator= (const std::vector<T>& x)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.swap(x);
     }
 
     std::vector<T>& operator= (std::vector<T>&& x)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector=std::move(x);
     }
 
     std::vector<T>& operator= (std::initializer_list<value_type> il)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.assign(il.begin(), il.end());
 
@@ -316,7 +316,7 @@ public:
     /*wrapper function for pop_back()*/
     void pop_back()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.pop_back();
     }
@@ -324,14 +324,14 @@ public:
     /*wrapper functions for push_back*/
     void push_back(const value_type& val)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.push_back(val);
     }
 
     void push_back(value_type&& val)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.push_back(val);
     }
@@ -339,7 +339,7 @@ public:
     /*wrapper functions for rbegin()*/
     reverse_iterator rbegin() noexcept
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.rbegin();
     }
@@ -352,7 +352,7 @@ public:
     /*wrapper functions for rend()*/
     reverse_iterator rend() noexcept
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         return threadSafeVector.rend();
     }
@@ -365,7 +365,7 @@ public:
     /*wrapper function for reserve()*/
     void reserve(size_type n)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.reserve(n);
     }
@@ -373,21 +373,21 @@ public:
     /*wrapper functions for resize()*/      
     void resize(size_type n)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.resize(n);
     }
 
     void resize(size_type n, const value_type& val)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.resize(n, val);
     }
 
     void shrink_to_fit()
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
         threadSafeVector.shrink_to_fit();
     }
 
@@ -400,7 +400,7 @@ public:
     /*wrapper function for swap()*/
     void swap(std::vector<T>& x)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
 
         threadSafeVector.swap(x);
     }

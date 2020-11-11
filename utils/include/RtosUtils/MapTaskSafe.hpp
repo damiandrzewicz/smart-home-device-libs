@@ -5,7 +5,7 @@
 #include <memory>
 
 
-#include "RtosUtils/BinarySemaphoreGuard.hpp"
+#include "RtosUtils/SemaphoreGuard.hpp"
 
 
 static SemaphoreHandle_t xMutex;
@@ -25,7 +25,7 @@ public:
 
     Value find(Key key)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
         auto message = _queue.find(key);
         bool found = message != _queue.end();
         return (found) ? message->second : nullptr;
@@ -33,27 +33,27 @@ public:
 
     Value extract(Key key)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
         auto nh = _queue.extract(key);
         return (!nh.empty()) ? nh.mapped() : nullptr;
     }
 
     Value insert(std::pair<Key, Value> msg)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
         _queue.insert(msg);
         return msg.second;
     }
 
     Value at(Key key)
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
         return _queue.at(key);
     }
 
     int size() const
     {
-        BinarySemaphoreGuard lock(xMutex);
+        SemaphoreGuard lock(xMutex);
         return _queue.size();
     }
 
