@@ -14,4 +14,5 @@ public:
     uint8_t qos;
     bool retain = false;
     bool ready = false;
+    unsigned int sendDelayMs = 0;
 };

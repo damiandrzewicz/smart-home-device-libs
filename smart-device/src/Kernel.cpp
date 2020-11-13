@@ -25,6 +25,11 @@ namespace SmartDevice
         return _otaTask;
     }
 
+    MqttTask &Kernel::getMqttTask()
+    {
+        return _mqttTask;
+    }
+
     void Kernel::printSystemInfo()
     {
         ESP_LOGI(TAG, "Starting...");

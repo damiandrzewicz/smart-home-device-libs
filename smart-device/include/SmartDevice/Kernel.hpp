@@ -6,6 +6,7 @@
 #include "Ota/OtaTask.hpp"
 #include "Mqtt/MqttTask.hpp"
 #include "SmartMessage/MessageManager.hpp"
+#include "SmartDevice/DeviceManager.hpp"
 
 
 namespace SmartDevice
@@ -16,6 +17,8 @@ namespace SmartDevice
         Kernel();
 
         OtaTask &getOtaTask();
+
+        MqttTask &getMqttTask();
 
     protected:
         virtual void initTask() override;
@@ -42,6 +45,7 @@ namespace SmartDevice
         MqttTask _mqttTask;
 
         MessageManager _messageManager;
+        DeviceManager _deviceManager;
     };
 };
 

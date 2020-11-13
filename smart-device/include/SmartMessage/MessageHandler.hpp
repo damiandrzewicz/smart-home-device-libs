@@ -3,15 +3,13 @@
 #include <string>
 #include <functional>
 
-class MessageHandler
+#include "SmartMessage/Message.hpp"
+
+class MessageHandler : public Message
 {
 public:
-
-    std::string getCommandIdentity() const;
+    MessageHandler(int qos, const std::string command, const std::string subcommand) 
+        : Message(qos, command, subcommand){}
 
     virtual void handle(const std::string &data) = 0;
-
-private:
-    std::string _command;
-    std::string _subcommand;
 };
