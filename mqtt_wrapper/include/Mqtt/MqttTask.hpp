@@ -12,6 +12,8 @@
 
 #include "Mqtt/MqttMessage.hpp"
 
+#include <functional>
+
 class MqttTask : public RoutineTask
 {
     typedef std::list<std::shared_ptr<MqttMessage>> MessageBuffer;
@@ -21,8 +23,10 @@ public:
 
     void setClientId(const std::string &id);
 
-    void send(std::shared_ptr<MqttMessage> msgOut);
+    void appendMessage(std::shared_ptr<MqttMessage> msgOut);
 
+    void setMessageProcessor(std::function<void(std::shared_ptr<MqttMessage>)> fun);
+    
 protected:
 
     virtual void task() override;
@@ -41,6 +45,8 @@ protected:
 private:
     void processIncomingMessages();
     void processOutcomingMessages();
+    void send(std::shared_ptr<MqttMessage> msgOut);
+
 
 
 private:
@@ -60,4 +66,6 @@ private:
 
     MessageBuffer _outcomingMessageBuffer;
     SemaphoreHandle_t _outcomingMessageMutex;
+
+    std::function<void(std::shared_ptr<MqttMessage>)> _messageProcessor;
 };

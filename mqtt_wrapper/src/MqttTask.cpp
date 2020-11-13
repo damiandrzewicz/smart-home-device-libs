@@ -55,6 +55,17 @@ void MqttTask::setClientId(const std::string &id)
     _client_id = id;
 }
 
+void MqttTask::appendMessage(std::shared_ptr<MqttMessage> msgOut)
+{
+    SemaphoreGuard lock(_outcomingMessageMutex);
+    _outcomingMessageBuffer.push_back(msgOut);
+}
+
+void MqttTask::setMessageProcessor(std::function<void(std::shared_ptr<MqttMessage>)> fun)
+{
+    _messageProcessor = fun;
+}
+
 void MqttTask::send(std::shared_ptr<MqttMessage> msgOut)
 {
     ESP_LOGD(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut->topic.c_str(), msgOut->data.c_str(), msgOut->qos, msgOut->retain);
@@ -127,6 +138,7 @@ void MqttTask::processIncomingMessages()
         if((*it)->ready)
         {
             //process message
+            _messageProcessor(*it);
 
             //delete message
             it = _incomingMessageBuffer.erase(it);

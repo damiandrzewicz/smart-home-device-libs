@@ -8,28 +8,22 @@
 
 #include "RtosUtils/MapTaskSafe.hpp"
 
+#include "SmartMessage/MessageTopicProcessor.hpp"
+
 static const char *TAG = "Kernel";
 
 namespace SmartDevice
 {
     Kernel::Kernel()
         :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 18)
-            //_mqttTask(_messgesContainer),
-            //_incomingMessageDispatcherTask(_messgesContainer.getIncomingMessages()),
-            //_outcomingMessageDispatcherTask(_messgesContainer.getOutcomingMessages())
     {
-        
+
     }
 
     OtaTask &Kernel::getOtaTask()
     {
         return _otaTask;
     }
-
-    // IncomingMessageDispatcher &Kernel::getIncomingMessageDispatcherTask()
-    // {
-    //     return _incomingMessageDispatcherTask;
-    // }
 
     void Kernel::printSystemInfo()
     {
@@ -63,18 +57,14 @@ namespace SmartDevice
     void Kernel::initMqtt()
     {
         _mqttTask.setClientId(System::Utils::MAC::GetClientId());
+        _mqttTask.setMessageProcessor(std::bind(&MessageManager::process, &_messageManager, std::placeholders::_1));
         _mqttTask.start();
         _mqttTask.waitForInitialized();
     }
 
-    void Kernel::initMessageDispatchers()
+    void Kernel::initRootMessages()
     {
-        //_incomingMessageDispatcherTask.start();
-        //_incomingMessageDispatcherTask.waitForInitialized();
-
-        //_outcomingMessageDispatcherTask.setSender(std::bind(&MqttTask::send, _mqttTask, std::placeholders::_1));
-        //_outcomingMessageDispatcherTask.start();
-        //_incomingMessageDispatcherTask.waitForInitialized();
+        //_messageManager.registerMessage()
     }
 
     void Kernel::initTask()
@@ -89,9 +79,9 @@ namespace SmartDevice
 
         performOta();
 
-        initMqtt();
+        initRootMessages();
 
-        initMessageDispatchers();
+        initMqtt();
 
         ESP_LOGI(TAG, "Kernel ready!");
     }

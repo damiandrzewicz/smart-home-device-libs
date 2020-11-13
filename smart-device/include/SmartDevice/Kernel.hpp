@@ -5,6 +5,7 @@
 #include "Network/WifiStation.hpp"
 #include "Ota/OtaTask.hpp"
 #include "Mqtt/MqttTask.hpp"
+#include "SmartMessage/MessageManager.hpp"
 
 
 namespace SmartDevice
@@ -32,13 +33,15 @@ namespace SmartDevice
 
         void initMqtt();
 
-        void initMessageDispatchers();
+        void initRootMessages();
 
     private:
         MemoryDaemon _memoryDaemon;
         WifiStation _station;
         OtaTask _otaTask;
         MqttTask _mqttTask;
+
+        MessageManager _messageManager;
     };
 };
 
