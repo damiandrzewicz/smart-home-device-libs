@@ -9,16 +9,25 @@
 #include "RtosUtils/MapTaskSafe.hpp"
 
 #include "SmartMessage/MessageTopicProcessor.hpp"
+#include "SmartMessage/MessageDomain.hpp"
 
 static const char *TAG = "Kernel";
 
 namespace SmartDevice
 {
+    Kernel &Kernel::getInstance()
+    {
+        static Kernel kernel;
+        return kernel;
+    }
+
     Kernel::Kernel()
         :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 18)
     {
 
     }
+
+    Kernel::~Kernel(){}
 
     OtaTask &Kernel::getOtaTask()
     {
@@ -30,17 +39,42 @@ namespace SmartDevice
         return _mqttTask;
     }
 
+    DeviceInfo &Kernel::getDeviceInfo()
+    {
+        return _deviceInfo;
+    }
+
     void Kernel::printSystemInfo()
     {
         ESP_LOGI(TAG, "Starting...");
-        ESP_LOGI(TAG, "System info:\n\tESP-IDF version: [%s]\n\tMAC: [%s]", 
-            System::Utils::EspIdf::GetSdkVersion().c_str(),
-            System::Utils::MAC::GetClientMac().c_str());
+        ESP_LOGI(TAG, "System info:\n\tESP-IDF version: [%s]\n\tAPP Version: [%s]\n\tMAC: [%s]\n\tClientId: [%s]", 
+            getDeviceInfo().appDescriptor.idfVersion.c_str(),
+            getDeviceInfo().appDescriptor.appVersion.c_str(),
+            getDeviceInfo().mac.c_str(),
+            getDeviceInfo().clientId.c_str());
+    }
+
+    void Kernel::initDeviceInfo()
+    {
+        if(getDeviceInfo().deviceType == DeviceType::Unknown)
+        {
+            ESP_LOGE(TAG, "DeviceType: [Unknown]. Stopping kernel init...");
+            deleteTask();
+        }
+        getDeviceInfo().appDescriptor = System::Utils::EspIdf::GetAppDescriptor();
+        getDeviceInfo().chipInfo = System::Utils::EspIdf::GetChipInfo();
+
+        getDeviceInfo().mac = System::Utils::MAC::GetClientMac();
+        getDeviceInfo().clientId = System::Utils::MAC::GetClientId();
     }
 
     void Kernel::initMemoryDaemon()
     {
         ESP_LOGI(TAG, "Starting  memory daemon...");
+        _memoryDaemon.setUpdateMemoryStateFunction([&](int currentHeapSizePercent, int minHeapSizePercent){
+            getDeviceInfo().deviceMemory.setCurrentFreeHeapPercent(currentHeapSizePercent);
+            getDeviceInfo().deviceMemory.setMinHeapFreePercent(minHeapSizePercent);
+        });
         _memoryDaemon.start();
     }
 
@@ -76,6 +110,8 @@ namespace SmartDevice
     {
         ESP_LOGI(TAG, "Kernel initialising...");
 
+        initDeviceInfo();
+
         printSystemInfo();
 
         initMemoryDaemon();
@@ -87,6 +123,9 @@ namespace SmartDevice
         initRootMessages();
 
         initMqtt();
+
+        _notifyDeviceAvailableTask.setAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
+        _notifyDeviceAvailableTask.start();
 
         ESP_LOGI(TAG, "Kernel ready!");
     }

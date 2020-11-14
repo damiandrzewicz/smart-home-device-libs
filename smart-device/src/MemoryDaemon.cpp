@@ -16,6 +16,11 @@ namespace SmartDevice
         
     }
 
+    void MemoryDaemon::setUpdateMemoryStateFunction(std::function<void(int, int)> fun)
+    {
+        _updateMemoryState = fun;
+    }
+
     void MemoryDaemon::task()
     {
         uint32_t freeHeapSize_byte = System::Utils::Memory::GetFreeHeapSize();;
@@ -25,19 +30,22 @@ namespace SmartDevice
         uint32_t minFreeHeapSize_kbyte = minFreeHeapSize_byte / 1024;
 
         uint32_t maxFreeHeapSize_byte = _maxHeapSize * 1024;
-        uint32_t maxFreeHrapSize_kbyte = _maxHeapSize;
+        uint32_t maxFreeHeapSize_kbyte = _maxHeapSize;
 
-        uint8_t freeHeapSizePercent = (freeHeapSize_kbyte * 100 ) / maxFreeHrapSize_kbyte;
+        uint8_t freeHeapSizePercent = (freeHeapSize_kbyte * 100 ) / maxFreeHeapSize_kbyte;
+        uint8_t minFreeHeapSizePercent = (minFreeHeapSize_kbyte * 100 ) / maxFreeHeapSize_kbyte;
 
-        ESP_LOGI(TAG, "Free heap memory size: [%d B (%d KB)] of [%d B (%d KB)] - (%d%%), minimal heap size occured: [%d B (%d KB)]", 
+        if(_updateMemoryState)
+            _updateMemoryState(freeHeapSizePercent, minFreeHeapSizePercent);
+
+        ESP_LOGI(TAG, "Free heap memory size: [%d B (%d KB)] of [%d B (%d KB) - (%d%%)] , minimal heap size occured: [%d B (%d KB) - (%d%%)]", 
             freeHeapSize_byte,
             freeHeapSize_kbyte,
             maxFreeHeapSize_byte,
-            maxFreeHrapSize_kbyte,
+            maxFreeHeapSize_kbyte,
             freeHeapSizePercent,
             minFreeHeapSize_byte,
-            minFreeHeapSize_kbyte);
-
-        
+            minFreeHeapSize_kbyte,
+            minFreeHeapSizePercent);
     }
 }

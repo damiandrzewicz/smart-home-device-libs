@@ -5,7 +5,7 @@
 class Message
 {
 public:
-    Message(int qos, const std::string command, const std::string subcommand);
+    Message(int qos, const std::string command, const std::string subcommand = "");
 
     std::string getCommand() const;
     std::string getSubcommand() const;

@@ -3,6 +3,9 @@
 #include <vector>
 #include <string>
 
+#include "SystemUtils/AppDescriptor.hpp"
+#include "SystemUtils/ChipInfo.hpp"
+
 namespace System
 {
     namespace Utils
@@ -19,6 +22,10 @@ namespace System
         namespace EspIdf
         {
             std::string GetSdkVersion();
+
+            ChipInfo GetChipInfo();
+
+            AppDescriptor GetAppDescriptor();
         }
 
         namespace Memory

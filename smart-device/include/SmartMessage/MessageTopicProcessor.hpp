@@ -6,6 +6,6 @@
 class MessageTopicProcessor
 {
 public:
-    virtual std::string build(MessageTopic messateTopic);
-    virtual MessageTopic parse(std::string messageTopic);
+    static std::string build(MessageTopic messateTopic);
+    static MessageTopic parse(std::string messageTopic);
 };

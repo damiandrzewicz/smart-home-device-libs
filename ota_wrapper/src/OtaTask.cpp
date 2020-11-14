@@ -13,6 +13,7 @@
 
 #define ASD "https://192.168.1.20:8070/test.bin"
 
+
 esp_https_ota_handle_t OtaTask::_Https_ota_handle = NULL;
 
 static const char *TAG = "Ota";

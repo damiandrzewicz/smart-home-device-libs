@@ -6,7 +6,8 @@
 #include "Ota/OtaTask.hpp"
 #include "Mqtt/MqttTask.hpp"
 #include "SmartMessage/MessageManager.hpp"
-#include "SmartDevice/DeviceManager.hpp"
+#include "SmartDevice/DeviceInfo.hpp"
+#include "SmartDevice/NotifyDeviceAvailableTask.hpp"
 
 
 namespace SmartDevice
@@ -14,11 +15,24 @@ namespace SmartDevice
     class Kernel : public RoutineTask
     {
     public:
-        Kernel();
+
+        static Kernel &getInstance();
+
+        // disable copy/move -- this is a Singleton
+        Kernel(const Kernel&) = delete;
+        Kernel(Kernel&&) = delete;
+        Kernel& operator=(const Kernel&) = delete;
+        Kernel& operator=(Kernel&&) = delete;
 
         OtaTask &getOtaTask();
 
         MqttTask &getMqttTask();
+
+        DeviceInfo &getDeviceInfo();
+
+    private:
+        Kernel();
+        ~Kernel();
 
     protected:
         virtual void initTask() override;
@@ -27,6 +41,8 @@ namespace SmartDevice
 
     private:
         void printSystemInfo();
+
+        void initDeviceInfo();
 
         void initMemoryDaemon();
 
@@ -43,9 +59,10 @@ namespace SmartDevice
         WifiStation _station;
         OtaTask _otaTask;
         MqttTask _mqttTask;
+        NotifyDeviceAvailableTask _notifyDeviceAvailableTask;
 
         MessageManager _messageManager;
-        DeviceManager _deviceManager;
+        DeviceInfo _deviceInfo;
     };
 };
 

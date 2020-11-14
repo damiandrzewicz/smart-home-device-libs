@@ -4,8 +4,10 @@ namespace SmartDevice
 {
     enum class DeviceType
     {
-        ExternalBlindDriver,
-        InternalBlindDriver,
+        Unknown,
+        Template,
+        RelayDriver,
+        PwmDriver,
         TemperatureSensor
     };
 };

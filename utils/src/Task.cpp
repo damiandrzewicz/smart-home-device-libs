@@ -2,7 +2,10 @@
 
 #include "esp_log.h"
 
+
+
 static const char *TAG = "Task";
+
 
 
 Task::Task(const char *name, unsigned portBASE_TYPE priority, unsigned short stackDepth)

@@ -1,5 +1,7 @@
 #include "SystemUtils/Utils.hpp"  
 #include "esp_system.h"
+#include "esp_idf_version.h"
+#include "esp_ota_ops.h"
 
 namespace System
 {
@@ -34,6 +36,34 @@ namespace System
         namespace EspIdf
         {
             std::string GetSdkVersion(){ return esp_get_idf_version(); }
+
+            ChipInfo GetChipInfo(){
+                esp_chip_info_t chip_info;
+                esp_chip_info(&chip_info);
+
+                ChipInfo chipInfo;
+
+                if(chip_info.model == CHIP_ESP32) chipInfo.chipModel = "CHIP_ESP32";
+                //else if(chip_info.model == CHIP_ESP32S2) chipInfo.chipModel = "CHIP_ESP32S2";
+                //else if(chip_info.model == CHIP_ESP32S3) chipInfo.chipModel = "CHIP_ESP32S3";
+
+                chipInfo.coresCPU = std::to_string(chip_info.cores);
+                chipInfo.revisionNumber = std::to_string(chip_info.revision);
+
+                return chipInfo;
+                
+            }
+
+            AppDescriptor GetAppDescriptor(){
+                const esp_app_desc_t *appDesc = esp_ota_get_app_description();
+                AppDescriptor descr;
+                descr.appVersion = appDesc->version;
+                descr.compileDate = appDesc->date;
+                descr.compoleTime = appDesc->time;
+                descr.idfVersion = appDesc->idf_ver;
+                descr.projectName = appDesc->project_name;
+                return descr;
+            }
         }
 
         namespace Memory

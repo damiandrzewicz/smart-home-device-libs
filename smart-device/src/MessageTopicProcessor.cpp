@@ -8,7 +8,7 @@ static const char *TAG = "MessageTopicProcessor";
 
 std::string MessageTopicProcessor::build(MessageTopic messateTopic)
 {
-    std::string mt = messateTopic.getDomain() + "/" + messateTopic.getSmartDeviceId() + "/" + messateTopic.getCommand();
+    std::string mt = messateTopic.getDomain() + "/" + messateTopic.getSubdomain() + "/" + messateTopic.getCommand();
     if(!messateTopic.getSubcommand().empty()) mt += "/" + messateTopic.getSubcommand();
     return mt;
 }
@@ -31,7 +31,7 @@ MessageTopic MessageTopicProcessor::parse(std::string messageTopic)
 
     MessageTopic mt;
     if(words.size() >= 1) mt.setDomain(items.at(1));
-    if(words.size() >= 2) mt.setSmartDeviceId(items.at(2));
+    if(words.size() >= 2) mt.setSubdomain(items.at(2));
     if(words.size() >= 3) mt.setDomain(items.at(3));
     if(words.size() >= 4) mt.setSubcommand(items.at(4));
     return mt;
