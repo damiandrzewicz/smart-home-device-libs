@@ -61,14 +61,55 @@ void MqttTask::appendMessage(std::shared_ptr<MqttMessage> msgOut)
     _outcomingMessageBuffer.push_back(msgOut);
 }
 
+void MqttTask::subscribeMessage(std::shared_ptr<MqttMessage> msgSubscr)
+{
+
+}
+
 void MqttTask::setMessageProcessor(std::function<void(std::shared_ptr<MqttMessage>)> fun)
 {
     _messageProcessor = fun;
 }
 
+void MqttTask::setOnConnectedCallback(auto clbck)
+{
+    _onConnectedCallback = clbck;
+}
+
+void MqttTask::setOnDisconnectedCallback(auto clbck)
+{
+    _onDisconnectedCallback = clbck;
+}
+
+void MqttTask::setOnSubscribedCallback(auto clbck)
+{
+    _onSubscribedCallback = clbck;
+}
+
+void MqttTask::setOnUnsubscribedCallback(auto clbck)
+{
+    _onUnsubscribedCallback = clbck;
+}
+
+void MqttTask::setOnPublishedCallback(auto clbck)
+{
+    _onPublishedCallback = clbck;
+}
+
+void MqttTask::setOnErrorCallback(auto clbck)
+{
+    _onErrorCallback = clbck;
+}
+
+void MqttTask::setOnUnhandledCallback(auto clbck)
+{
+    _onUnhandledCallback = clbck;
+}
+
+
 void MqttTask::send(std::shared_ptr<MqttMessage> msgOut)
 {
-    ESP_LOGD(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut->topic.c_str(), msgOut->data.c_str(), msgOut->qos, msgOut->retain);
+    ESP_LOGI(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut->topic.c_str(), msgOut->data.c_str(), msgOut->qos, msgOut->retain);
     int msg_id = esp_mqtt_client_publish(_client, msgOut->topic.c_str(), msgOut->data.c_str(), 0, static_cast<int>(msgOut->qos), static_cast<int>(msgOut->retain));
     if(msg_id == -1)
     {
@@ -130,7 +171,7 @@ void MqttTask::processIncomingMessages()
 {
     SemaphoreGuard lock(_incomingMessageMutex);
     ESP_LOGD(TAG, "Processing incoming messages...");
-    ESP_LOGD(TAG, "Buffer size before: [%d]", _incomingMessageBuffer.size());
+    ESP_LOGV(TAG, "Buffer size before: [%d]", _incomingMessageBuffer.size());
 
     auto it = _incomingMessageBuffer.begin();
     while(it != _incomingMessageBuffer.end())
@@ -149,7 +190,7 @@ void MqttTask::processIncomingMessages()
         }
     }
 
-    ESP_LOGD(TAG, "Buffer size after: [%d]", _incomingMessageBuffer.size());
+    ESP_LOGV(TAG, "Buffer size after: [%d]", _incomingMessageBuffer.size());
 }
 
 void MqttTask::processOutcomingMessages()
@@ -157,11 +198,13 @@ void MqttTask::processOutcomingMessages()
     SemaphoreGuard lock(_outcomingMessageMutex);
 
     ESP_LOGD(TAG, "Processing outcoming messages...");
-    ESP_LOGD(TAG, "Buffer size before: [%d]", _outcomingMessageBuffer.size());
+    ESP_LOGV(TAG, "Buffer size before: [%d]", _outcomingMessageBuffer.size());
+    
 
     auto it = _outcomingMessageBuffer.begin();
     while(it != _outcomingMessageBuffer.end())
     {
+        (*it)->print();
         if((*it)->ready)
         {
             //process message
@@ -176,7 +219,7 @@ void MqttTask::processOutcomingMessages()
         }
     }
 
-    ESP_LOGD(TAG, "Buffer size after: [%d]", _outcomingMessageBuffer.size());
+    ESP_LOGV(TAG, "Buffer size after: [%d]", _outcomingMessageBuffer.size());
 }
 
 /************************************/

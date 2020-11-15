@@ -24,8 +24,17 @@ public:
     void setClientId(const std::string &id);
 
     void appendMessage(std::shared_ptr<MqttMessage> msgOut);
+    void subscribeMessage(std::shared_ptr<MqttMessage> msgSubscr);
 
     void setMessageProcessor(std::function<void(std::shared_ptr<MqttMessage>)> fun);
+
+    void setOnConnectedCallback(auto clbck);
+    void setOnDisconnectedCallback(auto clbck);
+    void setOnSubscribedCallback(auto clbck);
+    void setOnUnsubscribedCallback(auto clbck);
+    void setOnPublishedCallback(auto clbck);
+    void setOnErrorCallback(auto clbck);
+    void setOnUnhandledCallback(auto clbck);
     
 protected:
 
@@ -68,4 +77,13 @@ private:
     SemaphoreHandle_t _outcomingMessageMutex;
 
     std::function<void(std::shared_ptr<MqttMessage>)> _messageProcessor;
+
+    std::function<void()> _onConnectedCallback;
+    std::function<void()> _onDisconnectedCallback;
+    std::function<void()> _onSubscribedCallback;
+    std::function<void()> _onUnsubscribedCallback;
+    std::function<void()> _onPublishedCallback;
+    std::function<void()> _onErrorCallback;
+    std::function<void()> _onUnhandledCallback;
+
 };
