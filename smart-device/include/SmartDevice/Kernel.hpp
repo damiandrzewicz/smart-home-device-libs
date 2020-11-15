@@ -7,7 +7,7 @@
 #include "Mqtt/MqttTask.hpp"
 #include "SmartMessage/MessageManager.hpp"
 #include "SmartDevice/DeviceInfo.hpp"
-#include "SmartDevice/NotifyDeviceAvailableTask.hpp"
+#include "SmartDevice/RoutineMessageSenderTask.hpp"
 
 
 namespace SmartDevice
@@ -59,7 +59,7 @@ namespace SmartDevice
         WifiStation _station;
         OtaTask _otaTask;
         MqttTask _mqttTask;
-        NotifyDeviceAvailableTask _notifyDeviceAvailableTask;
+        RoutineMessageSenderTask _routineMessageSenderTask;
 
         MessageManager _messageManager;
         DeviceInfo _deviceInfo;

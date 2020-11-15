@@ -22,7 +22,7 @@ namespace BaseSmartMessage
         auto strTopic = MessageTopicProcessor::build(topic);
         msg->topic = strTopic;
         msg->data = "test data 123";
-        msg->ready;
+        msg->ready = true;
 
         return msg;
     }

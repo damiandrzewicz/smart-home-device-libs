@@ -11,6 +11,8 @@
 #include "SmartMessage/MessageTopicProcessor.hpp"
 #include "SmartMessage/MessageDomain.hpp"
 
+#include "BaseSmartMessage/NotifyDeviceAvailable.hpp"
+
 static const char *TAG = "Kernel";
 
 namespace SmartDevice
@@ -124,8 +126,11 @@ namespace SmartDevice
 
         initMqtt();
 
-        _notifyDeviceAvailableTask.setAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
-        _notifyDeviceAvailableTask.start();
+        _routineMessageSenderTask.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
+        _routineMessageSenderTask.registerRoutineMessage( [](){
+            return BaseSmartMessage::NotifyDeviceAvailable().build();
+        }, 5000 );
+        _routineMessageSenderTask.start();
 
         ESP_LOGI(TAG, "Kernel ready!");
     }
