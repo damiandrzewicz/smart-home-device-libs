@@ -4,8 +4,6 @@
 
 #include "esp_log.h"
 
-
-
 class MqttMessage
 {
 public:
@@ -18,9 +16,10 @@ public:
     uint8_t qos;
     bool retain = false;
     bool ready = false;
+    int timesNotReady = 0;
 
     void print(){
-        ESP_LOGD("MqttMessage", "id=[%d], data=[%s], topic=[%s], qos=[%d], retain=[%d], ready=[%d]",
-            id, data.c_str(), topic.c_str(), qos, retain, ready);
+        ESP_LOGD("MqttMessage", "id=[%d], data=[%s], topic=[%s], qos=[%d], retain=[%d], ready=[%d], timesNotReady=[%d]",
+            id, data.c_str(), topic.c_str(), qos, retain, ready, timesNotReady);
     }
 };

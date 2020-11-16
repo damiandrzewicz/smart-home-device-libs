@@ -58,12 +58,19 @@ void MqttTask::setClientId(const std::string &id)
 void MqttTask::appendMessage(std::shared_ptr<MqttMessage> msgOut)
 {
     SemaphoreGuard lock(_outcomingMessageMutex);
+
+    if(_outcomingMessageBuffer.size() >= MaxBufferSize)
+    {
+        ESP_LOGD(TAG, "Clearing fromt message(OutcomingMessages): topic=[%s]", msgOut->topic.c_str());
+        _outcomingMessageBuffer.pop_front();
+    }
+
     _outcomingMessageBuffer.push_back(msgOut);
 }
 
-void MqttTask::subscribeMessage(std::shared_ptr<MqttMessage> msgSubscr)
+void MqttTask::appendSubscribtion(std::shared_ptr<MqttMessage> msgSubscr)
 {
-
+    _subscribtions.push_back(msgSubscr);
 }
 
 void MqttTask::setMessageProcessor(std::function<void(std::shared_ptr<MqttMessage>)> fun)
@@ -107,15 +114,46 @@ void MqttTask::setOnUnhandledCallback(auto clbck)
 }
 
 
-void MqttTask::send(std::shared_ptr<MqttMessage> msgOut)
+void MqttTask::send(std::shared_ptr<MqttMessage> msg)
 {
-    ESP_LOGI(TAG, "Sending: topic: %s, data: %s, qos: %d, retain: %d", msgOut->topic.c_str(), msgOut->data.c_str(), msgOut->qos, msgOut->retain);
-    int msg_id = esp_mqtt_client_publish(_client, msgOut->topic.c_str(), msgOut->data.c_str(), 0, static_cast<int>(msgOut->qos), static_cast<int>(msgOut->retain));
+    int msg_id = esp_mqtt_client_publish(_client, msg->topic.c_str(), msg->data.c_str(), 0, static_cast<int>(msg->qos), static_cast<int>(msg->retain));
     if(msg_id == -1)
     {
-        std::string err = "Cannot send message, id: " + std::to_string(msg_id);
+        std::string err = "Cannot send message, topic=[" + msg->topic + "]";
         ESP_LOGW(TAG, "%s", err.c_str());
         throw MqttException(err.c_str());
+    }
+    else
+    {
+        msg->id = msg_id;
+        ESP_LOGI(TAG, "Sent message: id=[%d], topic=[%s], data=[%s], qos=[%d], retain=[%d]", msg->id, msg->topic.c_str(), msg->data.c_str(), msg->qos, msg->retain);
+    }
+    
+}
+
+void MqttTask::subscribe(std::shared_ptr<MqttMessage> msg)
+{
+    int msg_id = esp_mqtt_client_subscribe(_client, msg->topic.c_str(), msg->qos);
+    if(msg_id == -1)
+    {
+        std::string err = "Cannot subscribe message, topic=[" + msg->topic + "]";
+        ESP_LOGW(TAG, "%s", err.c_str());
+        throw MqttException(err.c_str());
+    }
+    else
+    {
+        msg->id = msg_id;
+        ESP_LOGI(TAG, "Subscribed message: id=[%d], topic=[%s], qos=[%d]", msg->id, msg->topic.c_str(), msg->qos);
+    }
+    
+}
+
+void MqttTask::doSubscribtions()
+{
+    ESP_LOGI(TAG, "Subscribing messages: %d", _subscribtions.size());
+    for(auto subscr : _subscribtions)
+    {
+        subscribe(subscr);
     }
 }
 
@@ -170,8 +208,7 @@ void MqttTask::task()
 void MqttTask::processIncomingMessages()
 {
     SemaphoreGuard lock(_incomingMessageMutex);
-    ESP_LOGD(TAG, "Processing incoming messages...");
-    ESP_LOGV(TAG, "Buffer size before: [%d]", _incomingMessageBuffer.size());
+    ESP_LOGD(TAG, "Buffer size before(IncomingMessages): [%d]", _incomingMessageBuffer.size());
 
     auto it = _incomingMessageBuffer.begin();
     while(it != _incomingMessageBuffer.end())
@@ -186,40 +223,44 @@ void MqttTask::processIncomingMessages()
         }
         else
         {
-            ++it;
+            if((*it)->timesNotReady++ >= MaxTimesNotReady)
+            {
+                it = _outcomingMessageBuffer.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 
-    ESP_LOGV(TAG, "Buffer size after: [%d]", _incomingMessageBuffer.size());
+    ESP_LOGD(TAG, "Buffer size after(IncomingMessages): [%d]", _incomingMessageBuffer.size());
 }
 
 void MqttTask::processOutcomingMessages()
 {
     SemaphoreGuard lock(_outcomingMessageMutex);
-
-    ESP_LOGD(TAG, "Processing outcoming messages...");
-    ESP_LOGV(TAG, "Buffer size before: [%d]", _outcomingMessageBuffer.size());
+    ESP_LOGD(TAG, "Buffer size before(OutcomingMessages): [%d]", _outcomingMessageBuffer.size());
     
-
     auto it = _outcomingMessageBuffer.begin();
     while(it != _outcomingMessageBuffer.end())
     {
-        (*it)->print();
-        if((*it)->ready)
-        {
+        //(*it)->print();
+        //if((*it)->ready)
+        //{
             //process message
             send(*it);
 
             //delete message
             it = _outcomingMessageBuffer.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
+        //}
+        //else
+        //{
+        //    ++it;
+        //}
     }
 
-    ESP_LOGV(TAG, "Buffer size after: [%d]", _outcomingMessageBuffer.size());
+    ESP_LOGD(TAG, "Buffer size after(OutcomingMessages): [%d]", _outcomingMessageBuffer.size());
 }
 
 /************************************/
@@ -236,25 +277,16 @@ void MqttTask::onEvent(void *handler_args, esp_event_base_t base, int32_t event_
      switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
             //xEventGroupSetBits(this->eventBits, Status::Connected);
-            //doSubscribtions();
-            //doAutoPublications();
-
-            msg_id = esp_mqtt_client_subscribe(_client, "/topic/qos0", 0);
-            ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-
             onConnected();
             break;
         case MQTT_EVENT_DISCONNECTED:
             //xEventGroupClearBits(this->eventBits, Status::Connected);
-            //stopAllSubscribtions();
             onDisconnected();
             break;
         case MQTT_EVENT_SUBSCRIBED:
-            //confirmSubscribtion(event->msg_id);
             onSubscribed(event->msg_id);
             break;
         case MQTT_EVENT_UNSUBSCRIBED:
-            //cancelSubscribtion(event->msg_id);
             onUnsubscribed(event->msg_id);
             break;
         case MQTT_EVENT_PUBLISHED:
@@ -279,26 +311,33 @@ void MqttTask::onEvent(void *handler_args, esp_event_base_t base, int32_t event_
 void MqttTask::onConnected()
 {
     ESP_LOGD(TAG, "onConnected...");
+    doSubscribtions();
+
+    if(_onConnectedCallback) _onConnectedCallback();
 }
 
 void MqttTask::onDisconnected()
 {
     ESP_LOGD(TAG, "onDisconnected...");
+    if(_onDisconnectedCallback) _onDisconnectedCallback();
 }
 
 void MqttTask::onSubscribed(int msgId)
 {
     ESP_LOGD(TAG, "onSubscribed...");
+    if(_onSubscribedCallback) _onSubscribedCallback();
 }
 
 void MqttTask::onUnsubscribed(int msgId)
 {
     ESP_LOGD(TAG, "onUnsubscribed...");    
+    if(_onUnsubscribedCallback) _onUnsubscribedCallback();
 }
 
 void MqttTask::onPublished(int msgId)
 {
     ESP_LOGD(TAG, "onPublished...");
+    if(_onPublishedCallback) _onPublishedCallback();
 }
 
 void MqttTask::onData(int msgId, std::string topic, std::string data, int totalDataLen)
@@ -317,6 +356,12 @@ void MqttTask::onData(int msgId, std::string topic, std::string data, int totalD
     if(foundMessageIterator == _incomingMessageBuffer.end())
     {
         message = std::make_shared<MqttMessage>(msgId);
+
+        if(_incomingMessageBuffer.size() >= MaxBufferSize)
+        {
+            ESP_LOGD(TAG, "Clearing front message(IncomingMessages): topic=[%s]", (*foundMessageIterator)->topic.c_str());
+            _incomingMessageBuffer.pop_front();
+        }
         _incomingMessageBuffer.push_back(message);
         message->topic = topic;
     }
@@ -335,10 +380,13 @@ void MqttTask::onData(int msgId, std::string topic, std::string data, int totalD
 }
 
 void MqttTask::onError()
-{    ESP_LOGD(TAG, "onError...");
+{    
+    ESP_LOGD(TAG, "onError...");
+    if(_onErrorCallback) _onErrorCallback();
 }
 
 void MqttTask::onUnhandled(int eventId)
 {
     ESP_LOGD(TAG, "onUnhandled...");
+    if(_onUnhandledCallback) _onUnhandledCallback();
 }

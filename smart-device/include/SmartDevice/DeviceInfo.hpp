@@ -3,7 +3,6 @@
 #include <string>
 
 #include "SmartDevice/DeviceType.hpp"
-#include "SmartDevice/DeviceState.hpp"
 #include "SmartDevice/DeviceMemory.hpp"
 #include "SystemUtils/AppDescriptor.hpp"
 #include "SystemUtils/ChipInfo.hpp"
@@ -16,7 +15,6 @@ namespace SmartDevice
         DeviceType deviceType = DeviceType::Unknown;
         AppDescriptor appDescriptor;
         ChipInfo chipInfo;
-        DeviceState deviceState;
         DeviceMemory deviceMemory;
 
         std::string mac;

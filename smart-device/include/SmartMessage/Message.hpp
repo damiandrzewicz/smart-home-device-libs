@@ -6,6 +6,7 @@ class Message
 {
 public:
     Message(int qos, const std::string command, const std::string subcommand = "");
+    virtual ~Message();
 
     std::string getCommand() const;
     std::string getSubcommand() const;

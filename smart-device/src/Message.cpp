@@ -7,6 +7,11 @@ Message::Message(int qos, const std::string command, const std::string subcomman
     _subcommand = subcommand;
 }
 
+Message::~Message()
+{
+
+}
+
 std::string Message::getCommand() const
 {
     return _command;

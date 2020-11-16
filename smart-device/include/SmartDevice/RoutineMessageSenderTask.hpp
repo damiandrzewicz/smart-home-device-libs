@@ -4,13 +4,15 @@
 #include <functional>
 #include <list>
 
+#include "esp_log.h"
+
 #include "RtosUtils/SemaphoreGuard.hpp"
 
 #include "RtosUtils/RoutineTask.hpp"
 
 #include "Mqtt/MqttMessage.hpp"
 
-#include "esp_log.h"
+
 
 
 class RoutineMessageSenderTask : public RoutineTask

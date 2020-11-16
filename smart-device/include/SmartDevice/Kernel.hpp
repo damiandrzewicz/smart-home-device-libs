@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SystemUtils/SystemLogMessageRouter.hpp"
 #include "RtosUtils/RoutineTask.hpp"
 #include "SmartDevice/MemoryDaemon.hpp"
 #include "Network/WifiStation.hpp"
@@ -55,6 +56,8 @@ namespace SmartDevice
         void initRootMessages();
 
     private:
+        SystemLogMessageRouter _systemLogMessageRouter;
+
         MemoryDaemon _memoryDaemon;
         WifiStation _station;
         OtaTask _otaTask;

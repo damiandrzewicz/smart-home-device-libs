@@ -38,7 +38,7 @@ namespace SmartDevice
         if(_updateMemoryState)
             _updateMemoryState(freeHeapSizePercent, minFreeHeapSizePercent);
 
-        ESP_LOGI(TAG, "Free heap memory size: [%d B (%d KB)] of [%d B (%d KB) - (%d%%)] , minimal heap size occured: [%d B (%d KB) - (%d%%)]", 
+        ESP_LOGI(TAG, "Free heap memory size: [%d B (%d KB)] of [%d B (%d KB) - (%d %%)] , minimal heap size occured: [%d B (%d KB) - (%d %%)]", 
             freeHeapSize_byte,
             freeHeapSize_kbyte,
             maxFreeHeapSize_byte,

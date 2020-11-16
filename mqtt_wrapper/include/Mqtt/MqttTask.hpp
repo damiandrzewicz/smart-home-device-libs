@@ -24,7 +24,7 @@ public:
     void setClientId(const std::string &id);
 
     void appendMessage(std::shared_ptr<MqttMessage> msgOut);
-    void subscribeMessage(std::shared_ptr<MqttMessage> msgSubscr);
+    void appendSubscribtion(std::shared_ptr<MqttMessage> msgSubscr);
 
     void setMessageProcessor(std::function<void(std::shared_ptr<MqttMessage>)> fun);
 
@@ -54,8 +54,10 @@ protected:
 private:
     void processIncomingMessages();
     void processOutcomingMessages();
-    void send(std::shared_ptr<MqttMessage> msgOut);
+    void send(std::shared_ptr<MqttMessage> msg);
+    void subscribe(std::shared_ptr<MqttMessage> msg);
 
+    void doSubscribtions();
 
 
 private:
@@ -69,6 +71,9 @@ private:
     std::string _password;
 
     std::string _client_id;
+
+    static constexpr const int MaxBufferSize = 10;
+    static constexpr const int MaxTimesNotReady = 15;
 
     MessageBuffer _incomingMessageBuffer;
     SemaphoreHandle_t _incomingMessageMutex;
@@ -86,4 +91,5 @@ private:
     std::function<void()> _onErrorCallback;
     std::function<void()> _onUnhandledCallback;
 
+    std::list<std::shared_ptr<MqttMessage>> _subscribtions;
 };

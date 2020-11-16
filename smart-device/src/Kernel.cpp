@@ -11,7 +11,7 @@
 #include "SmartMessage/MessageTopicProcessor.hpp"
 #include "SmartMessage/MessageDomain.hpp"
 
-#include "BaseSmartMessage/NotifyDeviceAvailable.hpp"
+#include "BaseSmartMessage/NotifyDeviceAvailableBuilder.hpp"
 
 static const char *TAG = "Kernel";
 
@@ -110,7 +110,14 @@ namespace SmartDevice
 
     void Kernel::initTask()
     {
+        _systemLogMessageRouter.appendRouteCallback([&](const char *buffer){
+    
+        });
+        _systemLogMessageRouter.init();
+
         ESP_LOGI(TAG, "Kernel initialising...");
+
+        ESP_LOGE(TAG, "Test error");
 
         initDeviceInfo();
 
@@ -120,6 +127,8 @@ namespace SmartDevice
 
         initNetwork();
 
+        
+
         performOta();
 
         initRootMessages();
@@ -128,7 +137,7 @@ namespace SmartDevice
 
         _routineMessageSenderTask.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
         _routineMessageSenderTask.registerRoutineMessage( [](){
-            return BaseSmartMessage::NotifyDeviceAvailable().build();
+            return BaseSmartMessage::NotifyDeviceAvailableBuilder().build();
         }, 5000 );
         _routineMessageSenderTask.start();
 

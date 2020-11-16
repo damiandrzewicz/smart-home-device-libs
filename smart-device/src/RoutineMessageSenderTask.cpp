@@ -1,8 +1,5 @@
 #include "SmartDevice/RoutineMessageSenderTask.hpp"
 
-#include "BaseSmartMessage/NotifyDeviceAvailable.hpp"
-
-#include "esp_log.h"
 
 static const char *TAG = "RoutineMessageSenderTask";
 
@@ -31,8 +28,7 @@ void RoutineMessageSenderTask::task()
 {
     SemaphoreGuard lock(_xMessagesToSendMutex);
 
-    ESP_LOGD(TAG, "Processing routine tasks ...");
-    ESP_LOGV(TAG, "Buffer size before: [%d]", _routineMessages.size());
+    ESP_LOGD(TAG, "Buffer size before: [%d]", _routineMessages.size());
 
     for(auto &rmbd : _routineMessages)
     {
@@ -52,5 +48,5 @@ void RoutineMessageSenderTask::task()
         }
     }
 
-    ESP_LOGV(TAG, "Buffer size after: [%d]", _routineMessages.size());
+    ESP_LOGD(TAG, "Buffer size after: [%d]", _routineMessages.size());
 }
