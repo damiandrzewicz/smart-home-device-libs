@@ -41,6 +41,8 @@ namespace SmartDevice
         virtual void task() override;
 
     private:
+        void initLogMessageRouter();
+
         void printSystemInfo();
 
         void initDeviceInfo();
@@ -53,7 +55,9 @@ namespace SmartDevice
 
         void initMqtt();
 
-        void initRootMessages();
+        void registerMessageHandlers();
+
+        void registerMessageSenders();
 
     private:
         SystemLogMessageRouter _systemLogMessageRouter;

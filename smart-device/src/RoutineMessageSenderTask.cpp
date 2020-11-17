@@ -18,26 +18,29 @@ void RoutineMessageSenderTask::setMessageAppender(std::function<void(std::shared
     _messageAppender = messageAppender;
 }
 
-void RoutineMessageSenderTask::registerRoutineMessage(std::function<std::shared_ptr<MqttMessage>()> routineMessageBuilder, int delay)
+void RoutineMessageSenderTask::registerRoutineMessage(std::shared_ptr<MessageBuilder> messageBuilder, int delay)
 {
     SemaphoreGuard lock(_xMessagesToSendMutex);
-    _routineMessages.push_back({ routineMessageBuilder, delay });
+    _routineMessages.push_back({ messageBuilder, delay });
+}
+
+void RoutineMessageSenderTask::initTask()
+{
+    ESP_LOGD(TAG, "Registered messages: [%d]", _routineMessages.size());
 }
 
 void RoutineMessageSenderTask::task()
 {
     SemaphoreGuard lock(_xMessagesToSendMutex);
 
-    ESP_LOGD(TAG, "Buffer size before: [%d]", _routineMessages.size());
-
     for(auto &rmbd : _routineMessages)
     {
         if(rmbd.getDelay() <= TaskDelay * rmbd.getCurrentRoutineTick())
         {
-            auto build = rmbd.getRoutineMessageBuilder();
+            auto builder = rmbd.getRoutineMessageBuilder();
             if(_messageAppender)
             {
-                _messageAppender(build());
+                _messageAppender(builder->build());
             }
 
             rmbd.resetCurrentRoutineTick();
@@ -47,6 +50,4 @@ void RoutineMessageSenderTask::task()
             rmbd.incrementCurrentRoutineTick();
         }
     }
-
-    ESP_LOGD(TAG, "Buffer size after: [%d]", _routineMessages.size());
 }

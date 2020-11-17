@@ -2,19 +2,20 @@
 
 #include <string>
 
+#include "SmartMessage/MessageTopic.hpp"
+
 class Message
 {
 public:
-    Message(int qos, const std::string command, const std::string subcommand = "");
-    virtual ~Message();
+    Message(){}
+    virtual ~Message(){}
 
-    std::string getCommand() const;
-    std::string getSubcommand() const;
-    std::string getCommandIdentity() const;
-    int getQos() const;
+    MessageTopic &getTopic(){return _messageTopic;}
+
+    void setQos(int qos){ _qos = qos; }
+    int getQos() const { return _qos; };
 
 private:
-    std::string _command;
-    std::string _subcommand;
-    int _qos;
+    MessageTopic _messageTopic;
+    int _qos = 0;
 };

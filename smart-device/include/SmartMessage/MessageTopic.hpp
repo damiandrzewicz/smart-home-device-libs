@@ -29,6 +29,10 @@ public:
         return temp;
     }
 
+    bool operator==(const MessageTopic &mt){
+        return !getDomaindIdentity().compare(mt.getDomaindIdentity()) && !getCommandIdentity().compare(mt.getCommandIdentity());
+    }
+
 private:
     std::string domain;
     std::string subdomain;

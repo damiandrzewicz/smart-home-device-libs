@@ -10,24 +10,12 @@
 class MessageJson : public Message
 {
 public:
-    MessageJson(int qos, const std::string command, const std::string subcommand = "")
-        : Message(qos, command, subcommand)
-    {
-        _root = cJSON_CreateObject();
-        if(!_root)
-        {
-            ESP_LOGE(TAG, "Cannot create [root] object!");
-        }
+    MessageJson(){
 
-        _data = cJSON_CreateObject();
-        if(!_root)
-        {
-            ESP_LOGE(TAG, "Cannot create [data] object!");
-        }
     }
 
     virtual ~MessageJson(){
-        cJSON_Delete(_root);
+        clearRootJsonObject();
     }
 
 protected:
@@ -54,6 +42,31 @@ protected:
         cJSON_free(static_cast<char*>(s));
         return tmp;
     }
+
+    void buildRootJsonObject(){
+        _root = cJSON_CreateObject();
+        if(!_root)
+        {
+            ESP_LOGE(TAG, "Cannot create [root] object!");
+        }
+    }
+
+    void buildDataJsonObject(){
+        _data = cJSON_CreateObject();
+        if(!_root)
+        {
+            ESP_LOGE(TAG, "Cannot create [data] object!");
+        }
+    }
+
+    void parseRootJsonString(const std::string &data){
+        _root = cJSON_Parse(data.c_str());
+
+        _data = cJSON_GetObjectItemCaseSensitive(_root, "data");
+        //TODO handle errors
+    }
+
+    void clearRootJsonObject(){cJSON_Delete(_root);}
 
 private:
     cJSON *_root;

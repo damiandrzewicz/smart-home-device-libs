@@ -12,7 +12,7 @@ namespace SmartDevice
 {
     struct DeviceInfo
     {
-        DeviceType deviceType = DeviceType::Unknown;
+        DeviceType deviceType;
         AppDescriptor appDescriptor;
         ChipInfo chipInfo;
         DeviceMemory deviceMemory;

@@ -10,9 +10,9 @@ namespace BaseSmartMessage
     {
     public:
         NotifyDeviceAvailableBuilder()
-            : MessageBuilder(1, "NotifyDeviceAvailable")
         {
-            
+            setQos(1);
+            getTopic().setCommand("NotifyDeviceAvailable");
         }
 
         virtual void _build(std::shared_ptr<MqttMessage> msg) override

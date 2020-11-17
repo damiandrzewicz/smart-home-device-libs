@@ -17,16 +17,19 @@
 class MessageBuilder : public MessageJson
 {
 public:
-    MessageBuilder(int qos, const std::string command, const std::string subcommand = "") 
-        :   MessageJson(qos, command, subcommand),
-            _messageTopic(MessageDomain::MY_HOME, System::Utils::MAC::GetClientId(), getCommand(), getSubcommand())
-        {
-            cJSON_AddItemToObject(getRootJsonObject(), "data", getDataJsonObject());
-            
-        }
+    MessageBuilder() 
+    {
+        getTopic().setDomain(MessageDomain::MY_HOME);
+        getTopic().setSubdomain(System::Utils::MAC::GetClientId());
+    }
 
     std::shared_ptr<MqttMessage> build()
     {
+        buildRootJsonObject();
+        buildDataJsonObject();
+
+        cJSON_AddItemToObject(getRootJsonObject(), "data", getDataJsonObject());
+
         auto msg = std::make_shared<MqttMessage>();
         msg->topic = buildTopic();
         msg->qos = getQos();
@@ -35,7 +38,8 @@ public:
 
         _build(msg);
 
-        //msg->ready = true;
+
+        clearRootJsonObject();
 
         return msg;
     }
@@ -44,7 +48,7 @@ protected:
     virtual void _build(std::shared_ptr<MqttMessage> msg) = 0;
 
     std::string buildTopic(){
-        return MessageTopicProcessor::build(_messageTopic);
+        return MessageTopicProcessor::build(getTopic());
     }
 
     void appendTimestampItem()
@@ -52,7 +56,4 @@ protected:
         const char *timestamp = esp_log_system_timestamp();
         cJSON_AddStringToObject(getDataJsonObject(), "timestamp", timestamp);
     }
-
-protected:
-    MessageTopic _messageTopic;
 };

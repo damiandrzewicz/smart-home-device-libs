@@ -3,13 +3,22 @@
 #include <string>
 #include <functional>
 
-#include "SmartMessage/Message.hpp"
+#include "SmartMessage/MessageJson.hpp"
 
-class MessageHandler : public Message
+class MessageHandler : public MessageJson
 {
 public:
-    MessageHandler(int qos, const std::string command, const std::string subcommand = "") 
-        : Message(qos, command, subcommand){}
+    MessageHandler(){}
+    virtual ~MessageHandler(){}
 
-    virtual void handle(const std::string &data) = 0;
+    void handle(const std::string &data){
+        parseRootJsonString(data);
+
+        _handle();
+
+        clearRootJsonObject();
+    }
+
+protected:
+    virtual void _handle() = 0;
 };

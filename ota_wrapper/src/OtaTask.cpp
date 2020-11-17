@@ -48,7 +48,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
-OtaTask::OtaTask() : SingleShootTask("Ota", 4, 1024 * 10)
+OtaTask::OtaTask() : SingleShootTask("Ota", 4, 1024 * 4)
 {
     setHost(CONFIG_EXAMPLE_FIRMWARE_UPGRADE_URL);
 }

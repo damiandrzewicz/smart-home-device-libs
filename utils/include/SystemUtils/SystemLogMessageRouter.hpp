@@ -4,6 +4,8 @@
 #include <functional>
 #include <list>
 
+#include "RtosUtils/SemaphoreGuard.hpp"
+
 class SystemLogMessageRouter
 {
 public:
@@ -21,4 +23,6 @@ private:
     static std::list<RouteCallback> _systemListMessageRouteCallbacks;
 
     static char buffer[1024];
+
+    static SemaphoreHandle_t _xMutex;
 };

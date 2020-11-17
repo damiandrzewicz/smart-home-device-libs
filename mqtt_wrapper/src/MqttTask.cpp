@@ -78,37 +78,37 @@ void MqttTask::setMessageProcessor(std::function<void(std::shared_ptr<MqttMessag
     _messageProcessor = fun;
 }
 
-void MqttTask::setOnConnectedCallback(auto clbck)
+void MqttTask::setOnConnectedCallback(std::function<void()> clbck)
 {
     _onConnectedCallback = clbck;
 }
 
-void MqttTask::setOnDisconnectedCallback(auto clbck)
+void MqttTask::setOnDisconnectedCallback(std::function<void()> clbck)
 {
     _onDisconnectedCallback = clbck;
 }
 
-void MqttTask::setOnSubscribedCallback(auto clbck)
+void MqttTask::setOnSubscribedCallback(std::function<void()> clbck)
 {
     _onSubscribedCallback = clbck;
 }
 
-void MqttTask::setOnUnsubscribedCallback(auto clbck)
+void MqttTask::setOnUnsubscribedCallback(std::function<void()> clbck)
 {
     _onUnsubscribedCallback = clbck;
 }
 
-void MqttTask::setOnPublishedCallback(auto clbck)
+void MqttTask::setOnPublishedCallback(std::function<void()> clbck)
 {
     _onPublishedCallback = clbck;
 }
 
-void MqttTask::setOnErrorCallback(auto clbck)
+void MqttTask::setOnErrorCallback(std::function<void()> clbck)
 {
     _onErrorCallback = clbck;
 }
 
-void MqttTask::setOnUnhandledCallback(auto clbck)
+void MqttTask::setOnUnhandledCallback(std::function<void()> clbck)
 {
     _onUnhandledCallback = clbck;
 }

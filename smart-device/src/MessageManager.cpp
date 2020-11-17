@@ -13,7 +13,7 @@ void MessageManager::process(std::shared_ptr<MqttMessage> msg)
 
     //find message by command and subcommand
     auto it = std::find_if(_messageHandlers.begin(), _messageHandlers.end(), [&](const std::shared_ptr<MessageHandler> handler){
-        return !mt.getCommandIdentity().compare(handler->getCommandIdentity());
+        return mt == handler->getTopic();
     });
 
     if(it == _messageHandlers.end())

@@ -28,13 +28,13 @@ public:
 
     void setMessageProcessor(std::function<void(std::shared_ptr<MqttMessage>)> fun);
 
-    void setOnConnectedCallback(auto clbck);
-    void setOnDisconnectedCallback(auto clbck);
-    void setOnSubscribedCallback(auto clbck);
-    void setOnUnsubscribedCallback(auto clbck);
-    void setOnPublishedCallback(auto clbck);
-    void setOnErrorCallback(auto clbck);
-    void setOnUnhandledCallback(auto clbck);
+    void setOnConnectedCallback(std::function<void()> clbck);
+    void setOnDisconnectedCallback(std::function<void()> clbck);
+    void setOnSubscribedCallback(std::function<void()> clbck);
+    void setOnUnsubscribedCallback(std::function<void()> clbck);
+    void setOnPublishedCallback(std::function<void()> clbck);
+    void setOnErrorCallback(std::function<void()> clbck);
+    void setOnUnhandledCallback(std::function<void()> clbck);
     
 protected:
 
