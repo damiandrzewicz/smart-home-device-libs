@@ -1,4 +1,4 @@
-#include "SmartDevice/Kernel.hpp"
+#include "SmartDevice/DeviceCore.hpp"
 
 #include <functional>
 
@@ -14,47 +14,47 @@
 #include "BaseSmartMessage/NotifyDeviceAvailableBuilder.hpp"
 #include "BaseSmartMessage/RegisterDeviceBuilder.hpp"
 
-static const char *TAG = "Kernel";
+static const char *TAG = "SmartDeviceCore";
 
 namespace SmartDevice
 {
-    Kernel &Kernel::getInstance()
+    DeviceCore &DeviceCore::getInstance()
     {
-        static Kernel kernel;
+        static DeviceCore kernel;
         return kernel;
     }
 
-    Kernel::Kernel()
-        :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 4)
+    DeviceCore::DeviceCore()
+        :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 8)
     {
         initLogMessageRouter();
     }
 
-    Kernel::~Kernel(){}
+    DeviceCore::~DeviceCore(){}
 
-    OtaTask &Kernel::getOtaTask()
+    OtaTask &DeviceCore::getOtaTask()
     {
         return _otaTask;
     }
 
-    MqttTask &Kernel::getMqttTask()
+    MqttTask &DeviceCore::getMqttTask()
     {
         return _mqttTask;
     }
 
-    DeviceInfo &Kernel::getDeviceInfo()
+    DeviceInfo &DeviceCore::getDeviceInfo()
     {
         return _deviceInfo;
     }
 
-    void Kernel::initLogMessageRouter()
+    void DeviceCore::initLogMessageRouter()
     {
         //TODO
         // _systemLogMessageRouter.appendRouteCallback([&](const char *buffer){});
         _systemLogMessageRouter.init();
     }
 
-    void Kernel::printSystemInfo()
+    void DeviceCore::printSystemInfo()
     {
         ESP_LOGI(TAG, "Starting...");
         ESP_LOGI(TAG, "System info:\n\tESP-IDF version: [%s]\n\tAPP Version: [%s]\n\tMAC: [%s]\n\tClientId: [%s]", 
@@ -64,9 +64,9 @@ namespace SmartDevice
             getDeviceInfo().clientId.c_str());
     }
 
-    void Kernel::initDeviceInfo()
+    void DeviceCore::initDeviceInfo()
     {
-        if(getDeviceInfo().deviceType == DeviceType::Type::Unknown)
+        if(getDeviceInfo().deviceType == DeviceType::Value::Unknown)
         {
             ESP_LOGE(TAG, "DeviceType: [Unknown]. Stopping kernel init...");
             deleteTask();
@@ -78,32 +78,33 @@ namespace SmartDevice
         getDeviceInfo().clientId = System::Utils::MAC::GetClientId();
     }
 
-    void Kernel::initMemoryDaemon()
+    void DeviceCore::initMemoryDaemon()
     {
         ESP_LOGI(TAG, "Starting  memory daemon...");
-        _memoryDaemon.setUpdateMemoryStateFunction([&](int currentHeapSizePercent, int minHeapSizePercent){
-            getDeviceInfo().deviceMemory.setCurrentFreeHeapPercent(currentHeapSizePercent);
-            getDeviceInfo().deviceMemory.setMinHeapFreePercent(minHeapSizePercent);
+        _memoryDaemon.setUpdateMemoryStateFunction([&](int currentHeapSize, int minHeapSize){
+            getDeviceInfo().deviceMemory.setCurrentFreeHeap(currentHeapSize);
+            getDeviceInfo().deviceMemory.setMinHeapFree(minHeapSize);
         });
         _memoryDaemon.start();
     }
 
-    void Kernel::initNetwork()
+    void DeviceCore::initNetwork()
     {
         ESP_LOGI(TAG, "Starting Wifi...");
         _station.start();
         _station.isConnected(true); //wait for connection
     }
 
-    void Kernel::performOta()
+    void DeviceCore::performOta()
     {
         ESP_LOGI(TAG, "Performing OTA...");
 
+        _otaTask.setBinaryName(getDeviceInfo().deviceType.toString());
         _otaTask.start();
         _otaTask.waitForExecuted();
     }
 
-    void Kernel::initMqtt()
+    void DeviceCore::initMqtt()
     {
         _mqttTask.setClientId(System::Utils::MAC::GetClientId());
         _mqttTask.setMessageProcessor(std::bind(&MessageManager::process, &_messageManager, std::placeholders::_1));
@@ -116,21 +117,21 @@ namespace SmartDevice
         _mqttTask.waitForInitialized();
     }
 
-    void Kernel::registerMessageHandlers()
+    void DeviceCore::registerMessageHandlers()
     {
         //_messageManager.registerMessage()
     }
 
-    void Kernel::registerMessageSenders()
+    void DeviceCore::registerMessageSenders()
     {
         _routineMessageSenderTask.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
         _routineMessageSenderTask.registerRoutineMessage( std::make_shared<BaseSmartMessage::NotifyDeviceAvailableBuilder>(), 5000 );
         _routineMessageSenderTask.start();
     }
 
-    void Kernel::initTask()
+    void DeviceCore::initTask()
     {
-        ESP_LOGI(TAG, "Kernel initialising...");
+        ESP_LOGI(TAG, "DeviceCore Initialising...");
 
         initDeviceInfo();
 
@@ -148,10 +149,10 @@ namespace SmartDevice
 
         registerMessageSenders();
 
-        ESP_LOGI(TAG, "Kernel ready!");
+        ESP_LOGI(TAG, "DeviceCore ready!");
     }
 
-    void Kernel::task()
+    void DeviceCore::task()
     {
         // while(1)
         // {

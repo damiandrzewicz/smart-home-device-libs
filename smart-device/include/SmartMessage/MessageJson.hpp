@@ -10,12 +10,14 @@
 class MessageJson : public Message
 {
 public:
-    MessageJson(){
-
+    MessageJson()
+    {
+        
     }
 
-    virtual ~MessageJson(){
-        clearRootJsonObject();
+    virtual ~MessageJson()
+    {
+
     }
 
 protected:
@@ -53,7 +55,7 @@ protected:
 
     void buildDataJsonObject(){
         _data = cJSON_CreateObject();
-        if(!_root)
+        if(!_data)
         {
             ESP_LOGE(TAG, "Cannot create [data] object!");
         }
@@ -61,16 +63,21 @@ protected:
 
     void parseRootJsonString(const std::string &data){
         _root = cJSON_Parse(data.c_str());
+        if(_root)
+        {
+            _data = cJSON_GetObjectItemCaseSensitive(_root, "data");
+        }
 
-        _data = cJSON_GetObjectItemCaseSensitive(_root, "data");
         //TODO handle errors
     }
 
-    void clearRootJsonObject(){cJSON_Delete(_root);}
+    void clearRootJsonObject(){
+        cJSON_Delete(_root);
+    }
 
 private:
-    cJSON *_root;
-    cJSON *_data;
+    cJSON *_root = NULL;
+    cJSON *_data = NULL;
 
     static constexpr const char *TAG = "MessageJson";
 };

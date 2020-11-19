@@ -8,7 +8,10 @@ class Message
 {
 public:
     Message(){}
-    virtual ~Message(){}
+    virtual ~Message()
+    {
+        printf("~Message");
+    }
 
     MessageTopic &getTopic(){return _messageTopic;}
 

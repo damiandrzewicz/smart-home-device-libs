@@ -2,7 +2,7 @@
 
 #include "SmartMessage/MessageBuilder.hpp"
 
-#include "SmartDevice/Kernel.hpp"
+#include "SmartDevice/DeviceCore.hpp"
 
 namespace BaseSmartMessage
 {
@@ -15,10 +15,15 @@ namespace BaseSmartMessage
             getTopic().setCommand("RegisterDevice");
         }
 
+        virtual ~RegisterDeviceBuilder()
+        {
+            
+        }
+
         virtual void _build(std::shared_ptr<MqttMessage> msg) override{
-            const auto &appDescriptor = SmartDevice::Kernel::getInstance().getDeviceInfo().appDescriptor;
-            const auto &chipInfo = SmartDevice::Kernel::getInstance().getDeviceInfo().chipInfo;
-            const auto &deviceType = SmartDevice::Kernel::getInstance().getDeviceInfo().deviceType;
+            const auto &appDescriptor = SmartDevice::DeviceCore::getInstance().getDeviceInfo().appDescriptor;
+            const auto &chipInfo = SmartDevice::DeviceCore::getInstance().getDeviceInfo().chipInfo;
+            const auto &deviceType = SmartDevice::DeviceCore::getInstance().getDeviceInfo().deviceType;
 
             auto jAppDescriptor = cJSON_CreateObject();
             cJSON_AddStringToObject(jAppDescriptor, "appVersion", appDescriptor.appVersion.c_str());
@@ -30,7 +35,7 @@ namespace BaseSmartMessage
             cJSON_AddStringToObject(jChipInfo, "revisionNumber", chipInfo.revisionNumber.c_str());
             cJSON_AddItemToObject(getDataJsonObject(), "chipInfo", jChipInfo);
 
-            cJSON_AddStringToObject(getDataJsonObject(), "deviceType", deviceType.toString().c_str());
+            cJSON_AddStringToObject(getDataJsonObject(), "deviceType", deviceType.toString());
 
             msg->data = getStringUnformatted();
         }

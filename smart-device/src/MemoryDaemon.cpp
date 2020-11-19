@@ -11,7 +11,7 @@ static const char *TAG = "MemoryDaemon";
 namespace SmartDevice
 {
     MemoryDaemon::MemoryDaemon()
-        : RoutineTask("MemoryDaemon", 1, 1000, 1024 *2)
+        : RoutineTask("MemoryDaemon", 1, 1000, 1024 *4)
     {
         
     }

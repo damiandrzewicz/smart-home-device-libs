@@ -23,24 +23,24 @@ public:
         getTopic().setSubdomain(System::Utils::MAC::GetClientId());
     }
 
+    virtual ~MessageBuilder()
+    {
+        
+    }
+
     std::shared_ptr<MqttMessage> build()
     {
         buildRootJsonObject();
         buildDataJsonObject();
 
         cJSON_AddItemToObject(getRootJsonObject(), "data", getDataJsonObject());
-
         auto msg = std::make_shared<MqttMessage>();
         msg->topic = buildTopic();
         msg->qos = getQos();
 
-        appendTimestampItem();
-
         _build(msg);
-
-
+        
         clearRootJsonObject();
-
         return msg;
     }
 
@@ -51,9 +51,4 @@ protected:
         return MessageTopicProcessor::build(getTopic());
     }
 
-    void appendTimestampItem()
-    {
-        const char *timestamp = esp_log_system_timestamp();
-        cJSON_AddStringToObject(getDataJsonObject(), "timestamp", timestamp);
-    }
 };

@@ -26,31 +26,31 @@ namespace SmartDevice
             }
         }
 
-        void setCurrentFreeHeapPercent(int percent){
+        void setCurrentFreeHeap(int percent){
             SemaphoreGuard lock(xMutexFreeHeap);
-            _currentHeapFreePercent = percent;
+            _currentHeapFree = percent;
         }
 
-        void setMinHeapFreePercent(int percent){
+        void setMinHeapFree(int percent){
             SemaphoreGuard lock(xMutexMinFreeHeap);
-            _minHeapFreePercent = percent;
+            _minHeapFree = percent;
         }
 
-        auto getCurrentFreeHeapPercent(){
+        auto getCurrentFreeHeap(){
             SemaphoreGuard lock(xMutexFreeHeap);
-            return _currentHeapFreePercent;
+            return _currentHeapFree;
         }
 
-        auto getMinHeapFreePercent(){
+        auto getMinHeapFree(){
             SemaphoreGuard lock(xMutexMinFreeHeap);
-            return _minHeapFreePercent;
+            return _minHeapFree;
         }
 
     private:
         constexpr static const char *TAG = "DeviceMemory";
         
-        int _currentHeapFreePercent = 0;
-        int _minHeapFreePercent = 0;
+        int _currentHeapFree = 0;
+        int _minHeapFree = 0;
         SemaphoreHandle_t xMutexFreeHeap;
         SemaphoreHandle_t xMutexMinFreeHeap;
     };

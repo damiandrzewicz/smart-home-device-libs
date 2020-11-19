@@ -7,7 +7,7 @@ namespace SmartDevice
     class DeviceType
     {
     public:
-        enum class Type
+        enum class Value
         {
             Unknown,
             Template,
@@ -16,22 +16,32 @@ namespace SmartDevice
             TemperatureSensor
         };
 
-        DeviceType(Type type)
-            : _type(type){}
+        DeviceType(){}
 
-        auto getType(){return _type;}
+        DeviceType(Value value)
+            : _value(value){}
 
-        bool operator==(Type type){return type.getType() == _type;}
+        DeviceType(const DeviceType &deviceType){
+            _value = deviceType.getValue();
+        }
+        DeviceType &operator=(const DeviceType &deviceType){
+            _value = deviceType.getValue();
+            return *this;
+        }
 
-        auto toString(Type type){
-            if(type == Type::Template) return "Template";
-            else if(type == Type::RelayDriver) return "RelayDriver";
-            else if(type == Type::PwmDriver) return "PwmDriver";
-            else if(type == Type::TemperatureSensor) return "TemperatureSensor";
+        Value getValue() const {return _value;}
+
+        bool operator==(DeviceType type){return type.getValue() == _value;}
+
+        auto toString() const {
+            if(_value == Value::Template) return "template";
+            else if(_value == Value::RelayDriver) return "relay_driver";
+            else if(_value == Value::PwmDriver) return "pwm_driver";
+            else if(_value == Value::TemperatureSensor) return "temperature_sensor";
             else return "Unknown";
         }
 
     private:
-        Type _type = Type::Unknown;
+        Value _value = Value::Unknown;
     };
 };

@@ -13,17 +13,17 @@
 
 namespace SmartDevice
 {
-    class Kernel : public RoutineTask
+    class DeviceCore : public RoutineTask
     {
     public:
 
-        static Kernel &getInstance();
+        static DeviceCore &getInstance();
 
         // disable copy/move -- this is a Singleton
-        Kernel(const Kernel&) = delete;
-        Kernel(Kernel&&) = delete;
-        Kernel& operator=(const Kernel&) = delete;
-        Kernel& operator=(Kernel&&) = delete;
+        DeviceCore(const DeviceCore&) = delete;
+        DeviceCore(DeviceCore&&) = delete;
+        DeviceCore& operator=(const DeviceCore&) = delete;
+        DeviceCore& operator=(DeviceCore&&) = delete;
 
         OtaTask &getOtaTask();
 
@@ -32,8 +32,8 @@ namespace SmartDevice
         DeviceInfo &getDeviceInfo();
 
     private:
-        Kernel();
-        ~Kernel();
+        DeviceCore();
+        ~DeviceCore();
 
     protected:
         virtual void initTask() override;

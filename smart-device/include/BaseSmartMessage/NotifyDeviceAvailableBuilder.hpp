@@ -2,7 +2,7 @@
 
 #include "SmartMessage/MessageBuilder.hpp"
 
-#include "SmartDevice/Kernel.hpp"
+#include "SmartDevice/DeviceCore.hpp"
 
 namespace BaseSmartMessage
 {
@@ -17,10 +17,13 @@ namespace BaseSmartMessage
 
         virtual void _build(std::shared_ptr<MqttMessage> msg) override
         {
-            auto deviceMemory = SmartDevice::Kernel::getInstance().getDeviceInfo().deviceMemory;
+            const char *timestamp = esp_log_system_timestamp();
+            cJSON_AddStringToObject(getDataJsonObject(), "uptime", timestamp);
+
+            auto deviceMemory = SmartDevice::DeviceCore::getInstance().getDeviceInfo().deviceMemory;
             auto jDeviceMemory = cJSON_CreateObject();
-            cJSON_AddNumberToObject(jDeviceMemory, "currentFreeHeap", deviceMemory.getCurrentFreeHeapPercent());
-            cJSON_AddNumberToObject(jDeviceMemory, "minHeapFree", deviceMemory.getMinHeapFreePercent());
+            cJSON_AddNumberToObject(jDeviceMemory, "currentFreeHeap", deviceMemory.getCurrentFreeHeap());
+            cJSON_AddNumberToObject(jDeviceMemory, "minHeapFree", deviceMemory.getMinHeapFree());
             cJSON_AddItemToObject(getDataJsonObject(), "deviceMemory", jDeviceMemory);
 
             msg->data = getStringUnformatted();
