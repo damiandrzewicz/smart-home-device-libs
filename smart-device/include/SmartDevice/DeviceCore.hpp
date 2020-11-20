@@ -56,9 +56,9 @@ namespace SmartDevice
 
         void initMqtt();
 
-        void registerMessageHandlers();
+        void initMessageManager();
 
-        void registerMessageSenders();
+        void startMessageManager();
 
     private:
         SystemLogMessageRouter _systemLogMessageRouter;

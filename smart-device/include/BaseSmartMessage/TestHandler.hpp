@@ -7,16 +7,17 @@
 class TestHandler : public MessageHandler
 {
 public:
-    MessageHandler(){
+    TestHandler(){
         setQos(1);
+        getTopic().setCommand("Test");
     }
 
 protected:
-    void _handle() override{
+    virtual void _handle() override{
         auto testValue = cJSON_GetObjectItemCaseSensitive(getDataJsonObject(), "testkey");
-        if(cJSON_IsString(testValue) && (testValue->valuestring))
+        if(cJSON_IsString(testValue) && testValue->valuestring)
         {
-            ESP_LOGI("testkey: %s", testValue->valuestring);
+            ESP_LOGI(TAG, "testkey: %s", testValue->valuestring);
         }
     }
 

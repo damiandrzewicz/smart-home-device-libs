@@ -47,9 +47,13 @@ class MessageManager : public RoutineTask
 public:
     MessageManager();
 
-    void setMessageAppender(std::function<void(std::shared_ptr<MqttMessage>)> _messageAppender);
+    void setMessageAppender(std::function<void(std::shared_ptr<MqttMessage>)> messageAppender);
+
+    void setSubscribtionAppender(std::function<void(std::shared_ptr<MqttMessage>)> messageSubscriber);
 
     void registerRoutineMessage(std::shared_ptr<MessageBuilder> messageBuilder, int delay = 0);
+
+    void registerMessageHandler(std::shared_ptr<MessageHandler> handler);
 
     void process(std::shared_ptr<MqttMessage> msg);
 
@@ -61,6 +65,7 @@ protected:
 private:
 
     std::function<void(std::shared_ptr<MqttMessage>)> _messageAppender;
+    std::function<void(std::shared_ptr<MqttMessage>)> _subscribtionAppender;
 
     std::list<MessageBuilderData> _routineMessages;
     SemaphoreHandle_t _xMessagesToSendMutex;

@@ -30,9 +30,9 @@ MessageTopic MessageTopicProcessor::parse(std::string messageTopic)
     }
 
     MessageTopic mt;
-    if(words.size() >= 1) mt.setDomain(items.at(1));
-    if(words.size() >= 2) mt.setSubdomain(items.at(2));
-    if(words.size() >= 3) mt.setDomain(items.at(3));
-    if(words.size() >= 4) mt.setSubcommand(items.at(4));
+    if(words.size() >= 1) mt.setDomain(words.at(0));
+    if(words.size() >= 2) mt.setSubdomain(words.at(1));
+    if(words.size() >= 3) mt.setCommand(words.at(2));
+    if(words.size() >= 4) mt.setSubcommand(words.at(3));
     return mt;
 };

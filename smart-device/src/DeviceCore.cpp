@@ -14,6 +14,8 @@
 #include "BaseSmartMessage/NotifyDeviceAvailableBuilder.hpp"
 #include "BaseSmartMessage/RegisterDeviceBuilder.hpp"
 
+#include "BaseSmartMessage/TestHandler.hpp"
+
 static const char *TAG = "SmartDeviceCore";
 
 namespace SmartDevice
@@ -122,15 +124,17 @@ namespace SmartDevice
         _mqttTask.waitForInitialized();
     }
 
-    void DeviceCore::registerMessageHandlers()
-    {
-        //_messageManager.registerMessage()
-    }
-
-    void DeviceCore::registerMessageSenders()
+    void DeviceCore::initMessageManager()
     {
         _messageManager.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
+        _messageManager.setSubscribtionAppender(std::bind(&MqttTask::appendSubscribtion, &_mqttTask, std::placeholders::_1));
+
         _messageManager.registerRoutineMessage( std::make_shared<BaseSmartMessage::NotifyDeviceAvailableBuilder>(), 5000 );
+        _messageManager.registerMessageHandler(std::make_shared<TestHandler>());
+    }
+
+    void DeviceCore::startMessageManager()
+    {
         _messageManager.start();
     }
 
@@ -148,11 +152,11 @@ namespace SmartDevice
 
         performOta();
 
-        registerMessageHandlers();
+        initMessageManager();
 
         initMqtt();
 
-        registerMessageSenders();
+        startMessageManager();
 
         ESP_LOGI(TAG, "DeviceCore ready!");
     }

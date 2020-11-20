@@ -18,8 +18,10 @@ public:
     bool ready = false;
     int timesNotReady = 0;
 
-    void print(){
-        ESP_LOGD("MqttMessage", "id=[%d], data=[%s], topic=[%s], qos=[%d], retain=[%d], ready=[%d], timesNotReady=[%d]",
+    std::string toString(){
+        char buff[100];
+        snprintf(buff, sizeof(buff), "MqttMessage: id=[%d], data=[%s], topic=[%s], qos=[%d], retain=[%d], ready=[%d], timesNotReady=[%d]",
             id, data.c_str(), topic.c_str(), qos, retain, ready, timesNotReady);
+        return buff;
     }
 };

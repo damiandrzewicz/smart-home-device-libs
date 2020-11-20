@@ -61,7 +61,7 @@ void OtaTask::setHost(std::string host)
 
 void OtaTask::setBinaryName(std::string binaryName)
 {
-     _binaryName = binaryName;
+     _binaryName = binaryName + ".bin";
 }
 
 esp_err_t OtaTask::validateImageHeader(esp_app_desc_t *new_app_info)

@@ -126,7 +126,7 @@ void MqttTask::send(std::shared_ptr<MqttMessage> msg)
     else
     {
         msg->id = msg_id;
-        ESP_LOGI(TAG, "Sent message: id=[%d], topic=[%s], data=[%s], qos=[%d], retain=[%d]", msg->id, msg->topic.c_str(), msg->data.c_str(), msg->qos, msg->retain);
+        ESP_LOGI(TAG, "Sent: %s", msg->toString().c_str());
     }
     
 }
