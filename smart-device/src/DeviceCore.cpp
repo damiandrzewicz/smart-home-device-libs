@@ -47,6 +47,11 @@ namespace SmartDevice
         return _deviceInfo;
     }
 
+    MessageManager &DeviceCore::getMessageManager()
+    {
+        return _messageManager;
+    }
+
     void DeviceCore::initLogMessageRouter()
     {
         //TODO
@@ -124,9 +129,9 @@ namespace SmartDevice
 
     void DeviceCore::registerMessageSenders()
     {
-        _routineMessageSenderTask.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
-        _routineMessageSenderTask.registerRoutineMessage( std::make_shared<BaseSmartMessage::NotifyDeviceAvailableBuilder>(), 5000 );
-        _routineMessageSenderTask.start();
+        _messageManager.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
+        _messageManager.registerRoutineMessage( std::make_shared<BaseSmartMessage::NotifyDeviceAvailableBuilder>(), 5000 );
+        _messageManager.start();
     }
 
     void DeviceCore::initTask()

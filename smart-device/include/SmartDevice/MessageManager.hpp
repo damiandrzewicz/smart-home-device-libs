@@ -13,15 +13,16 @@
 #include "Mqtt/MqttMessage.hpp"
 
 #include "SmartMessage/MessageBuilder.hpp"
+#include "SmartMessage/MessageHandler.hpp"
+
+#include "SmartMessage/MessageTopicProcessor.hpp"
 
 
-
-
-class RoutineMessageSenderTask : public RoutineTask
+class MessageManager : public RoutineTask
 {
-    class RoutineMessageBuilderData{
+    class MessageBuilderData{
     public:
-        RoutineMessageBuilderData(std::shared_ptr<MessageBuilder> messageBuilder_, int delay_ = 0)
+        MessageBuilderData(std::shared_ptr<MessageBuilder> messageBuilder_, int delay_ = 0)
             : messageBuilder(messageBuilder_), delay(delay_)
             {}
 
@@ -32,7 +33,9 @@ class RoutineMessageSenderTask : public RoutineTask
         auto getDelay(){return delay;}
         auto getCurrentRoutineTick(){return currentRoutineTick;}
 
-        void pirint(){ESP_LOGV("RoutineMessageBuilderData", "delay: %d, currentRoutineTick: %d", delay, currentRoutineTick); }
+        void pirint(){ESP_LOGV("MessageBuilderData", "delay: %d, currentRoutineTick: %d", delay, currentRoutineTick); }
+
+        void process(std::shared_ptr<MqttMessage> msg);
 
     private:
         //std::function<std::shared_ptr<MqttMessage>()> routineMessageBuilder;
@@ -42,11 +45,13 @@ class RoutineMessageSenderTask : public RoutineTask
     };
 
 public:
-    RoutineMessageSenderTask();
+    MessageManager();
 
     void setMessageAppender(std::function<void(std::shared_ptr<MqttMessage>)> _messageAppender);
 
     void registerRoutineMessage(std::shared_ptr<MessageBuilder> messageBuilder, int delay = 0);
+
+    void process(std::shared_ptr<MqttMessage> msg);
 
 protected:
     virtual void initTask() override;
@@ -57,9 +62,12 @@ private:
 
     std::function<void(std::shared_ptr<MqttMessage>)> _messageAppender;
 
-    std::list<RoutineMessageBuilderData> _routineMessages;
+    std::list<MessageBuilderData> _routineMessages;
     SemaphoreHandle_t _xMessagesToSendMutex;
 
     static constexpr const int TaskDelay = 200;
+
+    std::list<std::shared_ptr<MessageHandler>> _messageHandlers;
+    MessageTopicProcessor _messageTopicProcessor;
 };
 

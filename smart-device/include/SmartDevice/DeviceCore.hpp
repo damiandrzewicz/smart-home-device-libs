@@ -6,9 +6,8 @@
 #include "Network/WifiStation.hpp"
 #include "Ota/OtaTask.hpp"
 #include "Mqtt/MqttTask.hpp"
-#include "SmartMessage/MessageManager.hpp"
+#include "SmartDevice/MessageManager.hpp"
 #include "SmartDevice/DeviceInfo.hpp"
-#include "SmartDevice/RoutineMessageSenderTask.hpp"
 
 
 namespace SmartDevice
@@ -30,6 +29,8 @@ namespace SmartDevice
         MqttTask &getMqttTask();
 
         DeviceInfo &getDeviceInfo();
+
+        MessageManager &getMessageManager();
 
     private:
         DeviceCore();
@@ -66,7 +67,6 @@ namespace SmartDevice
         WifiStation _station;
         OtaTask _otaTask;
         MqttTask _mqttTask;
-        RoutineMessageSenderTask _routineMessageSenderTask;
 
         MessageManager _messageManager;
         DeviceInfo _deviceInfo;

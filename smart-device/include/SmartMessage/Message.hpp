@@ -13,6 +13,7 @@ public:
         printf("~Message");
     }
 
+    void setTopic(const auto &topic){ _messageTopic = topic; }
     MessageTopic &getTopic(){return _messageTopic;}
 
     void setQos(int qos){ _qos = qos; }
