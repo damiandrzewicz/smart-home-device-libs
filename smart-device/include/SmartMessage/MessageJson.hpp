@@ -1,18 +1,29 @@
 #pragma once
 
 #include <string>
+#include <exception>
 
 #include "esp_log.h"
 
 #include "cJSON.h"
 #include "SmartMessage/Message.hpp"
 
+class MessageJsonException : public std::exception
+{
+public:
+    MessageJsonException(const char *msg_) : msg(msg_){}
+    const char *what(){return msg;}
+
+private:
+    const char *msg = nullptr;
+};
+
 class MessageJson : public Message
 {
 public:
     MessageJson()
     {
-        
+
     }
 
     virtual ~MessageJson()
@@ -29,7 +40,7 @@ protected:
         char *s = cJSON_Print(_root);
         std::string tmp(s);
         if(tmp.empty()){
-            ESP_LOGE(TAG, "Failed to print formatted JSON message!");
+            throw MessageJsonException("Failed to print formatted JSON message!");
         }
         cJSON_free(static_cast<char*>(s));
         return tmp;
@@ -39,7 +50,7 @@ protected:
         char *s = cJSON_PrintUnformatted(_root);
         std::string tmp(s);
         if(tmp.empty()){
-            ESP_LOGE(TAG, "Failed to print unformatted JSON message!");
+            throw MessageJsonException("Failed to print unformatted JSON message!");
         }
         cJSON_free(static_cast<char*>(s));
         return tmp;
@@ -49,7 +60,7 @@ protected:
         _root = cJSON_CreateObject();
         if(!_root)
         {
-            ESP_LOGE(TAG, "Cannot create [root] object!");
+            throw MessageJsonException("Cannot create [root] object!");
         }
     }
 
@@ -57,22 +68,29 @@ protected:
         _data = cJSON_CreateObject();
         if(!_data)
         {
-            ESP_LOGE(TAG, "Cannot create [data] object!");
+            throw MessageJsonException("Cannot create [data] object!");
         }
     }
 
     void parseRootJsonString(const std::string &data){
         _root = cJSON_Parse(data.c_str());
-        if(_root)
+        if(!_root)
         {
-            _data = cJSON_GetObjectItemCaseSensitive(_root, "data");
+            throw MessageJsonException("Cannot parse root string: 'root' nullptr");
         }
 
-        //TODO handle errors
+        _data = cJSON_GetObjectItemCaseSensitive(_root, "data");
+        if(!_data)
+        {
+            throw MessageJsonException("Cannot parse root string: 'data' nullptr");
+        }
     }
 
     void clearRootJsonObject(){
-        cJSON_Delete(_root);
+        if(_root)
+        {
+            cJSON_Delete(_root);
+        }
     }
 
 private:

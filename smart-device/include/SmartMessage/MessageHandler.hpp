@@ -19,13 +19,18 @@ public:
     virtual ~MessageHandler(){}
 
     void handle(const std::string &data){
-        parseRootJsonString(data);
-
-        _handle();
-
+        try{
+            parseRootJsonString(data);
+            _handle();
+        }catch(MessageJsonException &ex){
+            ESP_LOGE(TAG, "MessageJsonException: [%s]", ex.what());
+        }
+        
         clearRootJsonObject();
     }
 
 protected:
     virtual void _handle() = 0;
+
+    static constexpr const char *TAG = "MessageHandler";
 };

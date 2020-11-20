@@ -7,10 +7,14 @@
 class Message
 {
 public:
-    Message(){}
+    Message()
+    {
+
+    }
+    
     virtual ~Message()
     {
-        printf("~Message");
+
     }
 
     void setTopic(const auto &topic){ _messageTopic = topic; }
