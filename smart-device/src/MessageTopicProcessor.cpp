@@ -26,7 +26,9 @@ MessageTopic MessageTopicProcessor::parse(std::string messageTopic)
     
     if(words.size() < 3)
     {
-        ESP_LOGW(TAG, "At least 3 topic paths supported, provided %d: %s", words.size(), items.c_str());
+        char temp[50];
+        sprintf(temp, "At least 3 topic paths supported, provided %d: %s", words.size(), items.c_str());
+        throw MessageTopicProcessorException(temp);
     }
 
     MessageTopic mt;

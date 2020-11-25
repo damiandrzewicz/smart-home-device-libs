@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <exception>
 
 #include "esp_log.h"
 
@@ -13,6 +14,16 @@
 #include "SystemUtils/Utils.hpp"
 
 #include "Mqtt/MqttMessage.hpp"
+
+class MessageBuilderException : public std::exception
+{
+public:
+    MessageBuilderException(const char *msg_) : msg(msg_){}
+    const char *what(){return msg;}
+
+private:
+    const char *msg;
+};
 
 class MessageBuilder : public MessageJson
 {
@@ -30,15 +41,29 @@ public:
 
     std::shared_ptr<MqttMessage> build()
     {
-        buildRootJsonObject();
-        buildDataJsonObject();
-
-        cJSON_AddItemToObject(getRootJsonObject(), "data", getDataJsonObject());
         auto msg = std::make_shared<MqttMessage>();
-        msg->topic = buildTopic();
-        msg->qos = getQos();
 
-        _build(msg);
+        try{
+            buildRootJsonObject();
+            buildDataJsonObject();
+
+            cJSON_AddItemToObject(getRootJsonObject(), "data", getDataJsonObject());
+
+            
+            msg->topic = buildTopic();
+            msg->qos = getQos();
+
+            _build(msg);
+
+        }catch(MessageJsonException &ex){
+            ESP_LOGE(TAG, "MessageJsonException: [%s]", ex.what());
+            clearRootJsonObject();
+            throw MessageBuilderException(ex.what());
+        }catch(MessageTopicProcessorException &ex){
+            ESP_LOGE(TAG, "MessageTopicProcessorException: [%s]", ex.what());
+            clearRootJsonObject();
+            throw MessageBuilderException(ex.what());
+        }
         
         clearRootJsonObject();
         return msg;
@@ -50,5 +75,8 @@ protected:
     std::string buildTopic(){
         return MessageTopicProcessor::build(getTopic());
     }
+
+private:
+    static constexpr const char *TAG = "MessageBuilder";
 
 };

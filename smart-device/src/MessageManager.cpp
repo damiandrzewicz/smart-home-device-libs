@@ -51,7 +51,14 @@ void MessageManager::initTask()
 void MessageManager::process(std::shared_ptr<MqttMessage> msg)
 {
     //decompose topic
-    auto mt = _messageTopicProcessor.parse(msg->topic);
+    MessageTopic mt;
+    try{
+        mt = _messageTopicProcessor.parse(msg->topic);
+    }catch(MessageTopicProcessorException &ex){
+        ESP_LOGE(TAG, "MessageTopicProcessorException: [%s]", ex.what());
+        return;
+    }
+    
 
     //find message by command and subcommand
     auto it = std::find_if(_messageHandlers.begin(), _messageHandlers.end(), [&](const std::shared_ptr<MessageHandler> handler){
@@ -86,7 +93,12 @@ void MessageManager::task()
             auto builder = rmbd.getRoutineMessageBuilder();
             if(_messageAppender)
             {
-                _messageAppender(builder->build());
+                try{
+                    _messageAppender(builder->build());
+                }catch(MessageBuilderException &ex){
+                    ESP_LOGE(TAG, "MessageBuilderException: [%s]", ex.what());
+                }
+                
             }
 
             rmbd.resetCurrentRoutineTick();
