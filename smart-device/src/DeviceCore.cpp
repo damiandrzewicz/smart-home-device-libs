@@ -64,11 +64,17 @@ namespace SmartDevice
     void DeviceCore::printSystemInfo()
     {
         ESP_LOGI(TAG, "Starting...");
-        ESP_LOGI(TAG, "System info:\n\tESP-IDF version: [%s]\n\tAPP Version: [%s]\n\tMAC: [%s]\n\tClientId: [%s]", 
+        ESP_LOGI(TAG, "System info:\n\tESP-IDF version: [%s]\n\tAPP Version: [%s]\n\tMAC: [%s]\n\tClientId: [%s]\n\tChip info:(Model: [%s], cores: [%s], rev no: [%s]) ", 
             getDeviceInfo().appDescriptor.idfVersion.c_str(),
             getDeviceInfo().appDescriptor.appVersion.c_str(),
             getDeviceInfo().mac.c_str(),
-            getDeviceInfo().clientId.c_str());
+            getDeviceInfo().clientId.c_str(),
+            getDeviceInfo().chipInfo.chipModel.c_str(),
+            getDeviceInfo().chipInfo.coresCPU.c_str(),
+            getDeviceInfo().chipInfo.revisionNumber.c_str());
+
+        ESP_LOGI(TAG, "Device type: [%s]", 
+            getDeviceInfo().deviceType.toString());
     }
 
     void DeviceCore::initDeviceInfo()
@@ -78,6 +84,7 @@ namespace SmartDevice
             ESP_LOGE(TAG, "DeviceType: [Unknown]. Stopping kernel init...");
             deleteTask();
         }
+
         getDeviceInfo().appDescriptor = System::Utils::EspIdf::GetAppDescriptor();
         getDeviceInfo().chipInfo = System::Utils::EspIdf::GetChipInfo();
 
