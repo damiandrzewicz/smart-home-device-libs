@@ -24,7 +24,7 @@ namespace{
 }
 
 MqttTask::MqttTask(/*MessagesContainer &messagesContainer*/) 
-    :   RoutineTask("MqttTask", 4, 500, 1024 * 6)//, 
+    :   RoutineTask("MqttTask", 4, 200, 1024 * 6)//, 
         //_messagesContainer(messagesContainer)
 {
     _broker_url = CONFIG_BROKER_URL;

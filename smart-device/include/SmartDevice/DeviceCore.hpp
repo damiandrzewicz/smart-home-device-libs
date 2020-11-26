@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SystemUtils/SystemLogMessageRouter.hpp"
-#include "RtosUtils/RoutineTask.hpp"
+#include "RtosUtils/SingleShootTask.hpp"
 #include "SmartDevice/MemoryDaemon.hpp"
 #include "Network/WifiStation.hpp"
 #include "Ota/OtaTask.hpp"
@@ -12,7 +12,7 @@
 
 namespace SmartDevice
 {
-    class DeviceCore : public RoutineTask
+    class DeviceCore : public SingleShootTask
     {
     public:
 

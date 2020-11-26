@@ -27,9 +27,12 @@ namespace SmartDevice
     }
 
     DeviceCore::DeviceCore()
-        :   RoutineTask("SmartDevice:Kernel", 5, 500, 1024 * 8)
+        :   SingleShootTask("SmartDevice:Kernel", 5, 1024 * 8)
     {
         initLogMessageRouter();
+
+        _messageManager.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
+        _messageManager.setSubscribtionAppender(std::bind(&MqttTask::appendSubscribtion, &_mqttTask, std::placeholders::_1));
     }
 
     DeviceCore::~DeviceCore(){}
@@ -133,8 +136,7 @@ namespace SmartDevice
 
     void DeviceCore::initMessageManager()
     {
-        _messageManager.setMessageAppender(std::bind(&MqttTask::appendMessage, &_mqttTask, std::placeholders::_1));
-        _messageManager.setSubscribtionAppender(std::bind(&MqttTask::appendSubscribtion, &_mqttTask, std::placeholders::_1));
+ 
 
         _messageManager.registerRoutineMessage( std::make_shared<BaseSmartMessage::NotifyDeviceAvailableBuilder>(), 5000 );
         _messageManager.registerMessageHandler(std::make_shared<TestHandler>());

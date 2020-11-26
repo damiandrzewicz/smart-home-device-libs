@@ -45,7 +45,7 @@ void MessageManager::registerMessageHandler(std::shared_ptr<MessageHandler> hand
 
 void MessageManager::initTask()
 {
-    ESP_LOGD(TAG, "Registered messages: [%d]", _routineMessages.size());
+    ESP_LOGD(TAG, "Registered routine messages: [%d]", _routineMessages.size());
 }
 
 void MessageManager::process(std::shared_ptr<MqttMessage> msg)
