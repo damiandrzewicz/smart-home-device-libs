@@ -208,7 +208,10 @@ void MqttTask::task()
 void MqttTask::processIncomingMessages()
 {
     SemaphoreGuard lock(_incomingMessageMutex);
-    ESP_LOGD(TAG, "Buffer size before(IncomingMessages): [%d]", _incomingMessageBuffer.size());
+    bool hasSomething = _incomingMessageBuffer.size();
+
+    if(hasSomething)
+        ESP_LOGD(TAG, "Buffer size before(IncomingMessages): [%d]", _incomingMessageBuffer.size());
 
     auto it = _incomingMessageBuffer.begin();
     while(it != _incomingMessageBuffer.end())
@@ -234,13 +237,18 @@ void MqttTask::processIncomingMessages()
         }
     }
 
-    ESP_LOGD(TAG, "Buffer size after(IncomingMessages): [%d]", _incomingMessageBuffer.size());
+    if(hasSomething)
+        ESP_LOGD(TAG, "Buffer size after(IncomingMessages): [%d]", _incomingMessageBuffer.size());
 }
 
 void MqttTask::processOutcomingMessages()
 {
     SemaphoreGuard lock(_outcomingMessageMutex);
-    ESP_LOGD(TAG, "Buffer size before(OutcomingMessages): [%d]", _outcomingMessageBuffer.size());
+
+    bool hasSomething = _incomingMessageBuffer.size();
+
+    if(hasSomething)
+        ESP_LOGD(TAG, "Buffer size before(OutcomingMessages): [%d]", _outcomingMessageBuffer.size());
     
     auto it = _outcomingMessageBuffer.begin();
     while(it != _outcomingMessageBuffer.end())
@@ -260,7 +268,8 @@ void MqttTask::processOutcomingMessages()
         //}
     }
 
-    ESP_LOGD(TAG, "Buffer size after(OutcomingMessages): [%d]", _outcomingMessageBuffer.size());
+    if(hasSomething)
+        ESP_LOGD(TAG, "Buffer size after(OutcomingMessages): [%d]", _outcomingMessageBuffer.size());
 }
 
 /************************************/
